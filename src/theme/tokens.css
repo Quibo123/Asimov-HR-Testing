@@ -1,0 +1,14 @@
+:root {
+  --brand: #F95E0E;
+  --ink: #1E1F21;
+  --surface: #FFFFFF;
+}
+.dark {
+  --brand: #F95E0E;
+  --ink: #F5F5F5;
+  --surface: #1E1F21;
+}
+body {
+  background: var(--surface);
+  color: var(--ink);
+}
