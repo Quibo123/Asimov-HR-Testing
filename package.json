@@ -1,0 +1,5 @@
+{
+  "name": "asimov",
+  "private": true,
+  "workspaces": ["apps/web", "apps/api"]
+}
