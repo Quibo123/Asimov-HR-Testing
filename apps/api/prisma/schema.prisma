@@ -1,0 +1,45 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  schemas   = ["platform", "talently", "core", "onboard", "time"]
+}
+
+// ---------- platform ----------
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  @@schema("platform")
+}
+
+// ---------- placeholders (delete once real models exist in each schema) ----------
+model TalentlyPlaceholder {
+  id String @id @default(uuid())
+
+  @@schema("talently")
+}
+
+model CorePlaceholder {
+  id String @id @default(uuid())
+
+  @@schema("core")
+}
+
+model OnboardPlaceholder {
+  id String @id @default(uuid())
+
+  @@schema("onboard")
+}
+
+model TimePlaceholder {
+  id String @id @default(uuid())
+
+  @@schema("time")
+}
