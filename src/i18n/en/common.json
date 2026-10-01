@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "home": "Home",
+    "talently": "Talently",
+    "people": "People",
+    "onboard": "Onboard",
+    "time": "Time",
+    "settings": "Settings"
+  },
+  "user": "User",
+  "logoAlt": "Tenant logo",
+  "menu": "Menu",
+  "theme": {
+    "toggle": "Toggle light/dark"
+  },
+  "brand": {
+    "a": "Brand A",
+    "b": "Brand B"
+  }
+}

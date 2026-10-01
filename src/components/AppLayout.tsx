@@ -1,35 +1,53 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useState } from 'react'
 import { Menu } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { applyBrand, fakeBrandA, fakeBrandB } from '../theme/applyBrand'
 
 const modules = [
-  { path: '/talently', label: 'Talently' },
-  { path: '/people', label: 'People' },
-  { path: '/onboard', label: 'Onboard' },
-  { path: '/time', label: 'Time' },
-  { path: '/settings', label: 'Settings' },
+  { path: '/talently', key: 'nav.talently' },
+  { path: '/people', key: 'nav.people' },
+  { path: '/onboard', key: 'nav.onboard' },
+  { path: '/time', key: 'nav.time' },
+  { path: '/settings', key: 'nav.settings' },
 ]
 
 export default function AppLayout() {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="flex items-center gap-4 p-3 border-b">
-        <button className="md:hidden" onClick={() => setOpen(!open)}>
+        <button
+          className="md:hidden"
+          aria-label={t('menu')}
+          onClick={() => setOpen(!open)}
+        >
           <Menu />
         </button>
-        <img id="tenant-logo" alt="logo" className="h-8" />
+        <img id="tenant-logo" alt={t('logoAlt')} className="h-8" />
         <nav className="hidden md:flex gap-3">
           {modules.map(m => (
-            <NavLink key={m.path} to={m.path}>{m.label}</NavLink>
+            <NavLink key={m.path} to={m.path}>{t(m.key)}</NavLink>
           ))}
         </nav>
-        <div className="ml-auto">User</div>
+        <div className="ml-auto flex items-center gap-2">
+      <button onClick={() => applyBrand(fakeBrandA)}>{t('brand.a')}</button>
+      <button onClick={() => applyBrand(fakeBrandB)}>{t('brand.b')}</button>
+      <button onClick={() => document.documentElement.classList.toggle('dark')}>
+      {t('theme.toggle')}
+      </button>
+      <span>{t('user')}</span>
+      </div>
       </header>
+
       <div className="flex flex-1">
         <aside className={`${open ? 'block' : 'hidden'} md:block w-48 p-3 border-r`}>
           {modules.map(m => (
-            <NavLink key={m.path} to={m.path} className="block py-1">{m.label}</NavLink>
+            <NavLink key={m.path} to={m.path} className="block py-1">
+              {t(m.key)}
+            </NavLink>
           ))}
         </aside>
         <main className="flex-1 p-4"><Outlet /></main>

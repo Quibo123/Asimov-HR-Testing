@@ -1,18 +1,28 @@
 import { Routes, Route } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import AppLayout from './components/AppLayout'
 
-const Page = ({ name }: { name: string }) => <h1>{name}</h1>
+const Home = () => {
+  const { t } = useTranslation()
+  return <h1>{t('nav.home')}</h1>
+}
+
+
+const ModulePage = ({ ns }: { ns: string }) => {
+  const { t } = useTranslation(ns)
+  return <h1>{t('title')}</h1>
+}
 
 export default function App() {
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        <Route path="/" element={<Page name="Home" />} />
-        <Route path="/talently" element={<Page name="Talently" />} />
-        <Route path="/people" element={<Page name="People" />} />
-        <Route path="/onboard" element={<Page name="Onboard" />} />
-        <Route path="/time" element={<Page name="Time" />} />
-        <Route path="/settings" element={<Page name="Settings" />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/talently" element={<ModulePage ns="talently" />} />
+        <Route path="/people" element={<ModulePage ns="people" />} />
+        <Route path="/onboard" element={<ModulePage ns="onboard" />} />
+        <Route path="/time" element={<ModulePage ns="time" />} />
+        <Route path="/settings" element={<ModulePage ns="settings" />} />
       </Route>
     </Routes>
   )
