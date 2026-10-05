@@ -1,12 +1,23 @@
-import { Routes, Route } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import AppLayout from './components/AppLayout'
+import ProtectedRoute from './auth/ProtectedRoute'
+import SignIn from './pages/SignIn'
+import Accept from './pages/Accept'
+import SettingsUsers from './pages/SettingsUsers'
+import CareersLayout from './careers/CareersLayout'
+import CareersList from './careers/CareersList'
+import JobPage from './careers/JobPage'
+import ApplySuccess from './careers/ApplySuccess'
+import TemplatesList from './templates/TemplatesList'
+import TemplateEditorPage from './templates/TemplateEditorPage'
+import TalentlyLayout from './ats/TalentlyLayout'
+import CandidatesPage from './ats/CandidatesPage'
 
 const Home = () => {
   const { t } = useTranslation()
   return <h1>{t('nav.home')}</h1>
 }
-
 
 const ModulePage = ({ ns }: { ns: string }) => {
   const { t } = useTranslation(ns)
@@ -16,13 +27,34 @@ const ModulePage = ({ ns }: { ns: string }) => {
 export default function App() {
   return (
     <Routes>
-      <Route element={<AppLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/talently" element={<ModulePage ns="talently" />} />
-        <Route path="/people" element={<ModulePage ns="people" />} />
-        <Route path="/onboard" element={<ModulePage ns="onboard" />} />
-        <Route path="/time" element={<ModulePage ns="time" />} />
-        <Route path="/settings" element={<ModulePage ns="settings" />} />
+      {/* Public: no shell, no login */}
+      <Route path="/signin" element={<SignIn />} />
+      <Route path="/accept/:token" element={<Accept />} />
+      <Route element={<CareersLayout />}>
+        <Route path="/careers" element={<CareersList />} />
+        <Route path="/careers/:jobId" element={<JobPage />} />
+        <Route path="/careers/:jobId/success" element={<ApplySuccess />} />
+      </Route>
+
+      {/* Signed-in app */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<Home />} />
+
+          <Route path="/talently" element={<TalentlyLayout />}>
+            <Route index element={<Navigate to="/talently/templates" replace />} />
+            <Route path="templates" element={<TemplatesList />} />
+            <Route path="templates/new" element={<TemplateEditorPage />} />
+            <Route path="templates/:id" element={<TemplateEditorPage />} />
+            <Route path="candidates" element={<CandidatesPage />} />
+          </Route>
+
+          <Route path="/people" element={<ModulePage ns="people" />} />
+          <Route path="/onboard" element={<ModulePage ns="onboard" />} />
+          <Route path="/time" element={<ModulePage ns="time" />} />
+          <Route path="/settings" element={<Navigate to="/settings/users" replace />} />
+          <Route path="/settings/users" element={<SettingsUsers />} />
+        </Route>
       </Route>
     </Routes>
   )

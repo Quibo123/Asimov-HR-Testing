@@ -1,0 +1,62 @@
+{
+  "layoutTitle": "Careers",
+  "logoAlt": "Company logo",
+  "retry": "Try again",
+  "list": {
+    "title": "Open roles",
+    "loading": "Loading roles...",
+    "empty": "There are no roles right now.",
+    "error": "Could not load the roles.",
+    "closedBadge": "Closed"
+  },
+  "detail": {
+    "loading": "Loading role...",
+    "notFound": "This role could not be found.",
+    "error": "Could not load this role.",
+    "closed": "This role is closed",
+    "viewOpen": "See open roles",
+    "back": "All roles",
+    "apply": "Apply for this role"
+  },
+  "apply": {
+    "name": "Full name",
+    "email": "Email",
+    "phone": "Phone",
+    "questions": "A few questions",
+    "resume": "Resume",
+    "resumeHint": "PDF only, up to 10 MB.",
+    "dropHere": "Drag a PDF here, or click to choose one",
+    "dropActive": "Drop the file here",
+    "chosen": "Selected file: {{name}}",
+    "privacy": "Privacy notice: we use your details only to review your application. We keep them for the length of the hiring process and you can ask us to delete them at any time.",
+    "consent": "I agree to the processing of my personal data for this application.",
+    "submit": "Submit application",
+    "yes": "Yes",
+    "no": "No",
+    "ratingLabel": "Rating {{n}} of {{max}}",
+    "sendError": "Could not send your application. Your answers are still here, so try again."
+  },
+  "errors": {
+    "required": "This field is required.",
+    "email": "Enter a valid email address.",
+    "phone": "Enter a valid phone number.",
+    "number": "Enter a number.",
+    "min": "Must be at least {{min}}.",
+    "max": "Must be at most {{max}}.",
+    "rating": "Choose a rating from 1 to {{max}}.",
+    "tooLong": "Must be at most {{max}} characters.",
+    "invalidChoice": "Choose one of the options.",
+    "resumeRequired": "Please add your resume.",
+    "resumeType": "The resume must be a PDF file.",
+    "resumeSize": "The resume must be 10 MB or smaller.",
+    "consent": "You must agree to continue."
+  },
+  "success": {
+    "title": "Application received",
+    "next": "What happens next",
+    "step1": "Our team reviews your application.",
+    "step2": "If it is a match, we email you to arrange a first conversation.",
+    "step3": "Either way, you will hear from us.",
+    "back": "See open roles"
+  }
+}

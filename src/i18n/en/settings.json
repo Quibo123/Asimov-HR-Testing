@@ -1,1 +1,21 @@
-{ "title": "Settings" }
+{
+  "title": "Settings",
+  "users": {
+    "title": "Users",
+    "email": "Email",
+    "role": "Role",
+    "actions": "Actions",
+    "invite": "Invite user",
+    "send": "Send invite",
+    "invited": "Invite sent.",
+    "remove": "Remove",
+    "confirmRemove": "Remove this user?",
+    "lastOwner": "The last owner cannot be removed or changed.",
+    "error": "Something went wrong. Try again."
+  },
+  "roles": {
+    "owner": "Owner",
+    "admin": "Admin",
+    "member": "Member"
+  }
+}

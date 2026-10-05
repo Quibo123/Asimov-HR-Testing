@@ -1,0 +1,72 @@
+{
+  "title": "Templates",
+  "weights": "Weights: {{total}} / {{max}}",
+  "weightsHint": "Save is enabled when the weights add up to exactly {{max}}.",
+  "list": {
+    "new": "New template",
+    "loading": "Loading templates...",
+    "empty": "No templates yet. Create your first one.",
+    "error": "Could not load the templates.",
+    "version": "Version {{n}}",
+    "questions": "{{n}} questions",
+    "liveJobs": "Used by {{n}} live jobs",
+    "edit": "Edit",
+    "copy": "Copy",
+    "copyError": "Could not copy this template."
+  },
+  "editor": {
+    "back": "All templates",
+    "newTitle": "New template",
+    "editTitle": "Edit template",
+    "name": "Template name",
+    "addQuestion": "Add question",
+    "save": "Save",
+    "preview": "Preview as candidate",
+    "hidePreview": "Hide preview",
+    "loading": "Loading template...",
+    "error": "Could not load this template.",
+    "saveError": "Could not save. Try again.",
+    "versionWarning": "This will create version {{n}}. Jobs that use this template today keep the old version."
+  },
+  "question": {
+    "title": "Question {{n}}",
+    "text": "Question text",
+    "type": "Type",
+    "weight": "Weight",
+    "required": "Required",
+    "options": "Options and scores",
+    "optionLabel": "Option",
+    "score": "Score %",
+    "addOption": "Add option",
+    "removeOption": "Remove option",
+    "yes": "Yes",
+    "no": "No",
+    "mustHave": "Must-have",
+    "mustHaveNote": "A must-have flags the candidate for review. It never rejects anyone.",
+    "ruleAtLeast": "At least",
+    "ruleScore": "Option score at least (%)",
+    "ruleAnswer": "Answer must be",
+    "ruleNone": "Must-have is not available for text questions.",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "remove": "Remove question"
+  },
+  "types": {
+    "text": "Text",
+    "choice": "Choice",
+    "yesno": "Yes / No",
+    "number": "Number",
+    "rating": "Rating"
+  },
+  "issues": {
+    "name": "Give the template a name.",
+    "noQuestions": "Add at least one question.",
+    "weights": "Weights add up to {{total}}. They must add up to {{max}}.",
+    "label": "Question {{n}} needs text.",
+    "options": "Question {{n}} needs at least two options with text."
+  },
+  "preview": {
+    "title": "What candidates will see",
+    "note": "Weights, scores and must-haves are hidden from candidates."
+  }
+}

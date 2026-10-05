@@ -1,0 +1,62 @@
+{
+  "title": "Candidates",
+  "tabs": { "templates": "Templates", "candidates": "Candidates" },
+  "loading": "Loading candidates...",
+  "error": "Could not load the candidates.",
+  "retry": "Try again",
+  "empty": "No candidates yet.",
+  "noMatch": "No candidates match these filters.",
+  "filters": {
+    "status": "Status",
+    "job": "Job",
+    "all": "All",
+    "clear": "Clear filters"
+  },
+  "columns": {
+    "name": "Name",
+    "job": "Job",
+    "score": "Score",
+    "mustHave": "Must-have",
+    "status": "Status",
+    "applied": "Applied"
+  },
+  "status": {
+    "new": "New",
+    "verified": "Verified",
+    "shortlisted": "Shortlisted"
+  },
+  "table": { "none": "-", "flag": "Flag" },
+  "panel": {
+    "title": "Candidate",
+    "close": "Close",
+    "loading": "Loading candidate...",
+    "error": "Could not load this candidate.",
+    "applied": "Applied {{when}}",
+    "resume": "Resume",
+    "breakdown": "Score breakdown",
+    "noAnswer": "No answer",
+    "weightPoints": "Weight: {{weight}} · Points: {{points}} / {{weight}}",
+    "total": "Total score: {{n}}",
+    "originalTotal": "Original total: {{n}}",
+    "notVerified": "Not verified yet.",
+    "verify": "Verify score",
+    "verifiedBy": "Verified by {{who}} on {{when}}",
+    "verifyError": "Could not verify. Try again.",
+    "shortlist": "Shortlist",
+    "shortlisted": "Shortlisted",
+    "verifyFirst": "Verify the score first",
+    "shortlistError": "Could not shortlist. Verify the score first, then try again.",
+    "flag": "Must-have not met. Flagged for review.",
+    "adjust": "Adjust",
+    "adjustPoints": "New points (0 to {{max}})",
+    "adjustReason": "Reason (required)",
+    "adjustSave": "Save adjustment",
+    "cancel": "Cancel",
+    "adjustError": "Could not save the adjustment. Try again.",
+    "adjusted": "Adjusted from {{from}} to {{to}} by {{who}} on {{when}}. Reason: {{reason}}"
+  },
+  "errors": {
+    "points": "Enter points from 0 to {{max}}.",
+    "reason": "A reason is required."
+  }
+}

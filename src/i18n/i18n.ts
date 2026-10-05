@@ -7,15 +7,19 @@ import people from './en/people.json'
 import onboard from './en/onboard.json'
 import time from './en/time.json'
 import settings from './en/settings.json'
+import careers from './en/careers.json'
+import templates from './en/templates.json'
+import ats from './en/ats.json'
+import auth from './en/auth.json'
 
 i18n.use(initReactI18next).init({
   lng: 'en',
   fallbackLng: 'en',
-  ns: ['common', 'talently', 'people', 'onboard', 'time', 'settings'],
+  ns: ['common', 'talently', 'people', 'onboard', 'time', 'settings', 'auth', 'careers', 'templates', 'ats'],
   defaultNS: 'common',
   resources: {
-    en: { common, talently, people, onboard, time, settings },
-  },
+  en: { common, talently, people, onboard, time, settings, auth, careers, templates, ats },
+},
   interpolation: { escapeValue: false },
 })
 

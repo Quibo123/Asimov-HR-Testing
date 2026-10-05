@@ -16,5 +16,7 @@
   "brand": {
     "a": "Brand A",
     "b": "Brand B"
-  }
+  },
+  "loading": "Loading...",
+  "signOut": "Sign out"
 }
