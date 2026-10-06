@@ -12,9 +12,10 @@ datasource db {
 
 // ---------- platform ----------
 model Tenant {
-  id        String   @id @default(uuid())
-  name      String
-  createdAt DateTime @default(now())
+  id          String       @id @default(uuid())
+  name        String
+  createdAt   DateTime     @default(now())
+  memberships Membership[]
 
   @@schema("platform")
 }
@@ -43,3 +44,35 @@ model TimePlaceholder {
 
   @@schema("time")
 }
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+
+  @@schema("platform")
+}
+
+model User {
+  id          String       @id          // Supabase auth user id (token la varra "sub")
+  email       String       @unique
+  createdAt   DateTime     @default(now())
+  memberships Membership[]
+
+  @@schema("platform")
+}
+
+model Membership {
+  id        String   @id @default(uuid())
+  userId    String
+  tenantId  String
+  role      Role
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@unique([userId, tenantId])   // oru user, oru tenant la oru membership dhaan
+  @@schema("platform")
+}
+
