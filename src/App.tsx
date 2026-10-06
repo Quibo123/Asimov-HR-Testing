@@ -4,6 +4,7 @@ import AppLayout from './components/AppLayout'
 import ProtectedRoute from './auth/ProtectedRoute'
 import SignIn from './pages/SignIn'
 import Accept from './pages/Accept'
+import Home from './pages/Home'
 import SettingsUsers from './pages/SettingsUsers'
 import CareersLayout from './careers/CareersLayout'
 import CareersList from './careers/CareersList'
@@ -13,11 +14,6 @@ import TemplatesList from './templates/TemplatesList'
 import TemplateEditorPage from './templates/TemplateEditorPage'
 import TalentlyLayout from './ats/TalentlyLayout'
 import CandidatesPage from './ats/CandidatesPage'
-
-const Home = () => {
-  const { t } = useTranslation()
-  return <h1>{t('nav.home')}</h1>
-}
 
 const ModulePage = ({ ns }: { ns: string }) => {
   const { t } = useTranslation(ns)

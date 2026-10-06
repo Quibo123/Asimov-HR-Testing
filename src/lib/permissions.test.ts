@@ -11,4 +11,13 @@ describe('can', () => {
   it('denies when there is no role', () => {
     expect(can(null, 'users.view')).toBe(false)
   })
+  it('lets an interviewer add notes but never offer or hire', () => {
+    expect(can('interviewer', 'notes.add')).toBe(true)
+    expect(can('interviewer', 'pipeline.offer')).toBe(false)
+    expect(can('interviewer', 'pipeline.move')).toBe(false)
+  })
+  it('lets an admin offer and decide approvals', () => {
+    expect(can('admin', 'pipeline.offer')).toBe(true)
+    expect(can('admin', 'approvals.decide')).toBe(true)
+  })
 })

@@ -1,15 +1,25 @@
-export type Role = 'owner' | 'admin' | 'member'
+export type Role = 'owner' | 'admin' | 'member' | 'interviewer'
 
 export type Permission =
   | 'users.view'
   | 'users.invite'
   | 'users.changeRole'
   | 'users.remove'
+  | 'pipeline.move'
+  | 'pipeline.offer'
+  | 'notes.add'
+  | 'approvals.decide'
+
+const MANAGER: Permission[] = [
+  'users.view', 'users.invite', 'users.changeRole', 'users.remove',
+  'pipeline.move', 'pipeline.offer', 'notes.add', 'approvals.decide',
+]
 
 const PERMISSIONS: Record<Role, Permission[]> = {
-  owner: ['users.view', 'users.invite', 'users.changeRole', 'users.remove'],
-  admin: ['users.view', 'users.invite', 'users.changeRole', 'users.remove'],
+  owner: MANAGER,
+  admin: MANAGER,
   member: [],
+  interviewer: ['notes.add'], // notes and ratings only: never offer or hire
 }
 
 export function can(role: Role | null | undefined, permission: Permission): boolean {

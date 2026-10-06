@@ -23,7 +23,11 @@
   "status": {
     "new": "New",
     "verified": "Verified",
-    "shortlisted": "Shortlisted"
+    "shortlisted": "Shortlisted",
+    "interview": "Interview",
+    "offer": "Offer",
+    "hired": "Hired",
+    "rejected": "Rejected"
   },
   "table": { "none": "-", "flag": "Flag" },
   "panel": {
@@ -42,10 +46,7 @@
     "verify": "Verify score",
     "verifiedBy": "Verified by {{who}} on {{when}}",
     "verifyError": "Could not verify. Try again.",
-    "shortlist": "Shortlist",
-    "shortlisted": "Shortlisted",
     "verifyFirst": "Verify the score first",
-    "shortlistError": "Could not shortlist. Verify the score first, then try again.",
     "flag": "Must-have not met. Flagged for review.",
     "adjust": "Adjust",
     "adjustPoints": "New points (0 to {{max}})",
@@ -55,8 +56,44 @@
     "adjustError": "Could not save the adjustment. Try again.",
     "adjusted": "Adjusted from {{from}} to {{to}} by {{who}} on {{when}}. Reason: {{reason}}"
   },
+  "pipeline": {
+    "shortlist": "Shortlist",
+    "interview": "Move to interview",
+    "offer": "Make offer",
+    "hire": "Mark hired",
+    "reject": "Reject",
+    "error": "Could not update the status. Try again.",
+    "rejectReason": "Reason for rejecting (required)",
+    "rejectConfirm": "Confirm reject",
+    "cancel": "Cancel",
+    "hireTitle": "Mark as hired",
+    "joiningDate": "Joining date",
+    "location": "Joining location",
+    "hireConfirm": "Confirm hire",
+    "hireInfo": "Joining {{date}} · {{location}}"
+  },
+  "notes": {
+    "title": "Notes and ratings",
+    "empty": "No notes yet.",
+    "text": "Add a note",
+    "rating": "Rating (optional)",
+    "ratingNone": "No rating",
+    "add": "Add note",
+    "error": "Could not save the note. Try again.",
+    "ratingOf": "Rating: {{n}} / 5",
+    "byWhen": "{{who}} · {{when}}"
+  },
+  "history": {
+    "title": "History",
+    "byWhen": "by {{who}} on {{when}}",
+    "reason": "Reason: {{reason}}"
+  },
   "errors": {
     "points": "Enter points from 0 to {{max}}.",
-    "reason": "A reason is required."
+    "reason": "A reason is required.",
+    "note": "Write a note first.",
+    "joiningDate": "Choose a joining date.",
+    "joiningPast": "The joining date cannot be in the past.",
+    "location": "Enter the joining location."
   }
 }

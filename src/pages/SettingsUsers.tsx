@@ -6,7 +6,7 @@ import { can, type Role } from '../lib/permissions'
 import { useAuth } from '../auth/authContext'
 
 type UserRow = { id: string; email: string; role: Role }
-const ROLES: Role[] = ['owner', 'admin', 'member']
+const ROLES: Role[] = ['owner', 'admin', 'member', 'interviewer']
 
 export default function SettingsUsers() {
   const { t } = useTranslation('settings')

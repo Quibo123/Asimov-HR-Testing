@@ -43,13 +43,13 @@ export default function AppLayout() {
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
-          <button onClick={() => applyBrand(fakeBrandA)}>{t('brand.a')}</button>
-          <button onClick={() => applyBrand(fakeBrandB)}>{t('brand.b')}</button>
-          <button onClick={() => document.documentElement.classList.toggle('dark')}>
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+          <button className="hidden md:inline" onClick={() => applyBrand(fakeBrandA)}>{t('brand.a')}</button>
+          <button className="hidden md:inline" onClick={() => applyBrand(fakeBrandB)}>{t('brand.b')}</button>
+          <button className="hidden md:inline" onClick={() => document.documentElement.classList.toggle('dark')}>
             {t('theme.toggle')}
           </button>
-          <span>{me?.email ?? t('user')}</span>
+          <span className="hidden max-w-40 truncate sm:inline">{me?.email ?? t('user')}</span>
           <button onClick={() => supabase.auth.signOut()}>{t('signOut')}</button>
         </div>
       </header>

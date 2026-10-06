@@ -1,0 +1,22 @@
+{
+  "title": "Approvals",
+  "count": "{{n}} waiting",
+  "loading": "Loading approvals...",
+  "error": "Could not load the approvals.",
+  "retry": "Try again",
+  "empty": "Nothing is waiting for you.",
+  "types": {
+    "leave": "Leave",
+    "expense": "Expense",
+    "offer": "Offer",
+    "timesheet": "Timesheet"
+  },
+  "requestedBy": "Requested by {{who}}",
+  "approve": "Approve",
+  "reject": "Reject",
+  "rejectReason": "Reason for rejecting (required)",
+  "rejectConfirm": "Confirm reject",
+  "cancel": "Cancel",
+  "decideError": "Could not save your decision. The request was put back in the list.",
+  "errors": { "reason": "A reason is required." }
+}

@@ -1,21 +1,28 @@
 import { useTranslation } from 'react-i18next'
-import { Button, Tooltip } from '@heroui/react'
+import { Button } from '@heroui/react'
 import { formatInZone, zoneLabel } from '../lib/time'
+import { can } from '../lib/permissions'
+import { useAuth } from '../auth/authContext'
 import { useCandidate, useCandidateActions } from './queries'
-import { canShortlist, formatPoints, localZone, sumOriginal } from './logic'
+import { formatPoints, localZone, maskStatus, sumOriginal, visibleHistory } from './logic'
 import AdjustForm from './AdjustForm'
+import PipelineBar from './PipelineBar'
+import NotesSection from './NotesSection'
+import HistoryTimeline from './HistoryTimeline'
 
 type Props = { id: string; onClose: () => void }
 
 export default function CandidatePanel({ id, onClose }: Props) {
   const { t } = useTranslation('ats')
+  const { me } = useAuth()
+  const role = me?.role
   const { data: c, isPending, isError } = useCandidate(id)
   const actions = useCandidateActions(id)
 
   const zone = localZone()
   const when = (iso: string) => `${formatInZone(iso, zone, 'd MMM yyyy, HH:mm')} ${zoneLabel(zone)}`
 
-  const verified = c !== undefined && c.verifiedAt !== null
+  const isManager = can(role, 'pipeline.move')
   const totalChanged = c !== undefined && formatPoints(c.score) !== formatPoints(sumOriginal(c.breakdown))
 
   return (
@@ -36,8 +43,17 @@ export default function CandidatePanel({ id, onClose }: Props) {
         {c && (
           <div className="flex flex-col gap-4 p-4">
             <p className="text-sm opacity-80">
-              {`${c.jobTitle} · ${t('panel.applied', { when: when(c.appliedAt) })}`}
+              {`${c.jobTitle} · ${t(`status.${maskStatus(c.status, role)}`)} · ${t('panel.applied', { when: when(c.appliedAt) })}`}
             </p>
+
+            {c.hire && can(role, 'pipeline.offer') && (
+              <p role="status" className="font-medium">
+                {t('pipeline.hireInfo', {
+                  date: formatInZone(`${c.hire.joiningDate}T00:00:00Z`, 'UTC', 'd MMM yyyy'),
+                  location: c.hire.location,
+                })}
+              </p>
+            )}
 
             <div className="flex flex-wrap items-center gap-3">
               {c.verifiedAt && c.verifiedBy ? (
@@ -45,33 +61,28 @@ export default function CandidatePanel({ id, onClose }: Props) {
               ) : (
                 <>
                   <p>{t('panel.notVerified')}</p>
-                  <Button
-                    variant="bordered"
-                    isLoading={actions.verify.isPending}
-                    onPress={() => actions.verify.mutate()}
-                  >
-                    {t('panel.verify')}
-                  </Button>
+                  {isManager && (
+                    <Button
+                      variant="bordered"
+                      className="min-h-11"
+                      isLoading={actions.verify.isPending}
+                      onPress={() => actions.verify.mutate()}
+                    >
+                      {t('panel.verify')}
+                    </Button>
+                  )}
                 </>
               )}
-
-              <Tooltip content={t('panel.verifyFirst')} isDisabled={verified}>
-                <span className="inline-block">
-                  <Button
-                    color="primary"
-                    isDisabled={!canShortlist(c)}
-                    isLoading={actions.shortlist.isPending}
-                    onPress={() => actions.shortlist.mutate()}
-                  >
-                    {c.status === 'shortlisted' ? t('panel.shortlisted') : t('panel.shortlist')}
-                  </Button>
-                </span>
-              </Tooltip>
             </div>
-
-            {!verified && <p className="text-sm">{t('panel.verifyFirst')}</p>}
             {actions.verify.isError && <p role="alert" className="text-red-600">{t('panel.verifyError')}</p>}
-            {actions.shortlist.isError && <p role="alert" className="text-red-600">{t('panel.shortlistError')}</p>}
+
+            <PipelineBar
+              c={c}
+              role={role}
+              busy={actions.move.isPending}
+              failed={actions.move.isError}
+              onMove={(action, body, done) => actions.move.mutate({ action, body }, { onSuccess: done })}
+            />
 
             <div>
               <p className="text-lg font-semibold">{t('panel.total', { n: formatPoints(c.score) })}</p>
@@ -117,18 +128,32 @@ export default function CandidatePanel({ id, onClose }: Props) {
                         </p>
                       )}
 
-                      <AdjustForm
-                        item={item}
-                        busy={actions.adjust.isPending}
-                        failed={actions.adjust.isError && actions.adjust.variables?.questionId === item.questionId}
-                        onSave={(v, done) =>
-                          actions.adjust.mutate({ questionId: item.questionId, ...v }, { onSuccess: done })
-                        }
-                      />
+                      {isManager && (
+                        <AdjustForm
+                          item={item}
+                          busy={actions.adjust.isPending}
+                          failed={actions.adjust.isError && actions.adjust.variables?.questionId === item.questionId}
+                          onSave={(v, done) =>
+                            actions.adjust.mutate({ questionId: item.questionId, ...v }, { onSuccess: done })
+                          }
+                        />
+                      )}
                     </li>
                   ))}
                 </ol>
               </section>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <NotesSection
+                notes={c.notes}
+                canAdd={can(role, 'notes.add')}
+                busy={actions.note.isPending}
+                failed={actions.note.isError}
+                when={when}
+                onAdd={(v, done) => actions.note.mutate(v, { onSuccess: done })}
+              />
+              <HistoryTimeline history={visibleHistory(c.history, role)} when={when} />
             </div>
           </div>
         )}

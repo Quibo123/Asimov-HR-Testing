@@ -16,6 +16,7 @@
   "roles": {
     "owner": "Owner",
     "admin": "Admin",
-    "member": "Member"
+    "member": "Member",
+    "interviewer": "Interviewer"
   }
 }

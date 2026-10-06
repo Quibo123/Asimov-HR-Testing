@@ -9,7 +9,8 @@ import {
 } from '@tanstack/react-table'
 import { formatInZone } from '../lib/time'
 import { useCandidates } from './queries'
-import { STATUSES, formatPoints, localZone, parseSort, parseStatus, serializeSort } from './logic'
+import { useAuth } from '../auth/authContext'
+import { formatPoints, localZone, maskStatus, parseSort, parseStatus, serializeSort, visibleStatuses } from './logic'
 import type { CandidateSummary } from './types'
 import CandidatePanel from './CandidatePanel'
 
@@ -19,6 +20,9 @@ export default function CandidatesPage() {
   const { t } = useTranslation('ats')
   const [params, setParams] = useSearchParams()
   const { data, isPending, isError, refetch } = useCandidates()
+
+  const { me } = useAuth()
+  const role = me?.role
 
   const status = parseStatus(params.get('status'))
   const job = params.get('job') ?? ''
@@ -48,7 +52,10 @@ export default function CandidatesPage() {
       { replace: true },
     )
 
-  const rows = useMemo(() => data ?? [], [data])
+    const rows = useMemo(
+    () => (data ?? []).map(r => ({ ...r, status: maskStatus(r.status, role) })),
+    [data, role],
+  )
   const jobs = useMemo(() => {
     const seen = new Map<string, string>()
     rows.forEach(r => seen.set(r.jobId, r.jobTitle))
@@ -134,7 +141,7 @@ export default function CandidatesPage() {
             onChange={e => setParam('status', e.target.value)}
           >
             <option value="">{t('filters.all')}</option>
-            {STATUSES.map(s => (
+            {visibleStatuses(role).map(s => (
               <option key={s} value={s}>{t(`status.${s}`)}</option>
             ))}
           </select>
