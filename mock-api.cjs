@@ -5,6 +5,9 @@ let role = 'owner'       // /__role/owner | admin | member | interviewer
 let force401 = false     // /__401/on|off
 let failApply = false    // /__fail/on|off        the apply request is dropped
 let failDecide = false   // /__faildecide/on|off  approvals decisions fail (proves the rollback)
+let delayMs = 0          // /__delay/2000 (milliseconds) | /__delay/0   every call is slow, so skeletons show
+let failGet = false      // /__getfail/on|off     Talently, approvals and public GET calls fail
+let empty = false        // /__empty/on|off       list endpoints return no items
 const events = []        // /__events             what the API "published"
 
 const ME_EMAIL = 'zeu94424@gmail.com' // must match your Supabase user
@@ -251,6 +254,19 @@ http
     if (parts[0] === '__fail') { failApply = parts[1] === 'on'; return send(res, 200, { failApply }) }
     if (parts[0] === '__faildecide') { failDecide = parts[1] === 'on'; return send(res, 200, { failDecide }) }
     if (parts[0] === '__events') return send(res, 200, events)
+    if (parts[0] === '__delay') { delayMs = Number(parts[1]) || 0; return send(res, 200, { delayMs }) }
+    if (parts[0] === '__getfail') { failGet = parts[1] === 'on'; return send(res, 200, { failGet }) }
+    if (parts[0] === '__empty') { empty = parts[1] === 'on'; return send(res, 200, { empty }) }
+
+    // ---- AS-123 test switches: slow, failing and empty responses ----
+    if (delayMs) await new Promise(r => setTimeout(r, delayMs))
+    if (failGet && req.method === 'GET' && ['talently', 'approvals', 'public'].includes(parts[0])) {
+      return send(res, 500, { error: 'simulated failure' })
+    }
+    if (empty && req.method === 'GET' &&
+        ['/talently/candidates', '/talently/templates', '/approvals', '/public/jobs'].includes(path)) {
+      return send(res, 200, [])
+    }
 
     // ---- Sample resume (an iframe cannot send a token, so a real API would use a signed link) ----
     if (req.method === 'GET' && path === '/files/resume.pdf') {
