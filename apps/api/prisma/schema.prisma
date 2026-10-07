@@ -17,7 +17,9 @@ model Tenant {
   createdAt   DateTime     @default(now())
   memberships Membership[]
   auditEntries AuditEntry[]
-
+  templates QuestionnaireTemplate[]
+  jobs      Job[]
+  
   @@schema("platform")
 }
 
@@ -60,7 +62,7 @@ model User {
   createdAt   DateTime     @default(now())
   memberships Membership[]
   auditEntries AuditEntry[]
-  
+
   @@schema("platform")
 }
 
@@ -95,4 +97,93 @@ model AuditEntry {
   @@index([tenantId, createdAt])
   @@index([tenantId, entity, entityId])
   @@schema("platform")
+}
+
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  YES_NO
+  NUMBER_BANDS
+  RATING
+  SHORT_TEXT
+  FILE
+
+  @@schema("talently")
+}
+
+enum JobStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+
+  @@schema("talently")
+}
+
+// One row per VERSION of a template. All versions of the same template share a groupId.
+model QuestionnaireTemplate {
+  id        String   @id @default(uuid())
+  tenantId  String
+  groupId   String
+  name      String
+  version   Int      @default(1)
+  createdAt DateTime @default(now())
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id])
+  questions Question[]
+  jobs      Job[]
+
+  @@unique([groupId, version])
+  @@index([tenantId])
+  @@schema("talently")
+}
+
+model Question {
+  id         String       @id @default(uuid())
+  templateId String
+  position   Int
+  type       QuestionType
+  text       String
+  weight     Int          @default(0)
+  required   Boolean      @default(true)
+  mustHave   Boolean      @default(false)
+
+  template QuestionnaireTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  options  Option[]
+
+  @@index([templateId])
+  @@schema("talently")
+}
+
+model Option {
+  id           String @id @default(uuid())
+  questionId   String
+  position     Int
+  label        String
+  scorePercent Int
+  minValue     Float?
+  maxValue     Float?
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@schema("talently")
+}
+
+model Job {
+  id              String    @id @default(uuid())
+  tenantId        String
+  title           String
+  location        String
+  status          JobStatus @default(DRAFT)
+  templateId      String
+  templateVersion Int?      // set when the job is published; null while it is a draft
+  publishedAt     DateTime?
+  closedAt        DateTime?
+  createdAt       DateTime  @default(now())
+
+  tenant   Tenant                @relation(fields: [tenantId], references: [id])
+  template QuestionnaireTemplate @relation(fields: [templateId], references: [id])
+
+  @@index([tenantId, status])
+  @@schema("talently")
 }

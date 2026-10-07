@@ -1,0 +1,64 @@
+{
+  "name": "Support engineer screening",
+  "questions": [
+    {
+      "type": "SINGLE_CHOICE",
+      "text": "Highest education?",
+      "weight": 30,
+      "required": true,
+      "mustHave": false,
+      "options": [
+        { "label": "Bachelor's degree", "scorePercent": 100 },
+        { "label": "Diploma", "scorePercent": 50 },
+        { "label": "Other", "scorePercent": 0 }
+      ]
+    },
+    {
+      "type": "YES_NO",
+      "text": "Are you authorised to work in India?",
+      "weight": 20,
+      "required": true,
+      "mustHave": true,
+      "options": [
+        { "label": "Yes", "scorePercent": 100 },
+        { "label": "No", "scorePercent": 0 }
+      ]
+    },
+    {
+      "type": "NUMBER_BANDS",
+      "text": "Years of experience",
+      "weight": 30,
+      "required": true,
+      "options": [
+        { "label": "0 to 2", "minValue": 0, "maxValue": 2, "scorePercent": 30 },
+        { "label": "3 to 5", "minValue": 3, "maxValue": 5, "scorePercent": 70 },
+        { "label": "6 or more", "minValue": 6, "maxValue": null, "scorePercent": 100 }
+      ]
+    },
+    {
+      "type": "RATING",
+      "text": "Rate your English",
+      "weight": 20,
+      "required": true,
+      "options": [
+        { "label": "1", "minValue": 1, "maxValue": 1, "scorePercent": 0 },
+        { "label": "2", "minValue": 2, "maxValue": 2, "scorePercent": 25 },
+        { "label": "3", "minValue": 3, "maxValue": 3, "scorePercent": 50 },
+        { "label": "4", "minValue": 4, "maxValue": 4, "scorePercent": 75 },
+        { "label": "5", "minValue": 5, "maxValue": 5, "scorePercent": 100 }
+      ]
+    },
+    {
+      "type": "SHORT_TEXT",
+      "text": "Why do you want this job?",
+      "weight": 0,
+      "required": false
+    },
+    {
+      "type": "FILE",
+      "text": "Upload your resume",
+      "weight": 0,
+      "required": true
+    }
+  ]
+}

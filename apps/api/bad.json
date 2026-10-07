@@ -1,0 +1,1 @@
+{"name":"Bad","questions":[{"type":"YES_NO","text":"Q1","weight":60,"options":[{"label":"Yes","scorePercent":100},{"label":"No","scorePercent":0}]},{"type":"YES_NO","text":"Q2","weight":30,"options":[{"label":"Yes","scorePercent":100},{"label":"No","scorePercent":0}]}]}

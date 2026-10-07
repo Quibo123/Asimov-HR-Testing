@@ -24,7 +24,7 @@ const tenantIdSchema = z.string().uuid();
 
 // Token illaama pogalaam: health + public portal routes
 const PUBLIC_EXACT = new Set(["/health"]);
-const PUBLIC_PREFIXES = ["/public/"]; // unga real public portal path ku maathunga
+const PUBLIC_PREFIXES = ["/portal/"]; // unga real public portal path ku maathunga
 
 export function isPublic(path: string) {
   return PUBLIC_EXACT.has(path) || PUBLIC_PREFIXES.some((p) => path.startsWith(p));
