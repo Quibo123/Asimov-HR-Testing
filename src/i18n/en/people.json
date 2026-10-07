@@ -29,5 +29,84 @@
       "page": "Page {{n}}",
       "of": "Page {{page}} of {{pages}}"
     }
+  },
+  "profile": {
+    "back": "Back to directory",
+    "notFound": "This employee could not be found.",
+    "error": "Could not load this profile.",
+    "exitedBadge": "Exited",
+    "readOnly": "This employee has exited. The profile is read-only.",
+    "tabsLabel": "Profile sections",
+    "tabs": {
+      "overview": "Overview",
+      "job": "Job",
+      "documents": "Documents",
+      "activity": "Activity",
+      "sensitive": "Sensitive"
+    },
+    "fields": {
+      "code": "Employee code",
+      "status": "Status",
+      "email": "Work email",
+      "phone": "Phone",
+      "department": "Department",
+      "location": "Location",
+      "designation": "Designation",
+      "manager": "Reports to",
+      "joiningDate": "Joining date",
+      "employmentType": "Employment type",
+      "grade": "Grade",
+      "exitDate": "Exit date",
+      "dateOfBirth": "Date of birth",
+      "personalEmail": "Personal email",
+      "emergencyContact": "Emergency contact",
+      "bankAccount": "Bank account",
+      "salaryBand": "Salary band"
+    },
+    "sensitive": {
+      "title": "Sensitive details",
+      "note": "Only HR can see this tab. Each view is recorded in the activity log.",
+      "error": "Could not load the sensitive details.",
+      "bank": "Account ending {{last4}}",
+      "emergency": "{{name}} ({{relation}}), {{phone}}"
+    },
+    "documents": {
+      "title": "Documents",
+      "upload": "Upload a document",
+      "hint": "PDF, PNG, JPG or DOCX, up to 10 MB.",
+      "uploading": "Uploading...",
+      "uploadError": "Could not upload the document. Try again.",
+      "empty": "No documents yet.",
+      "error": "Could not load the documents.",
+      "open": "Open",
+      "opening": "Opening...",
+      "openError": "Could not open the document. Try again.",
+      "popupBlocked": "Your browser blocked the new tab.",
+      "readyLink": "Open the document now",
+      "linkNote": "Links stop working after about a minute. Open it again for a new link.",
+      "delete": "Delete",
+      "confirmDelete": "Delete {{name}}? This cannot be undone.",
+      "confirm": "Yes, delete",
+      "cancel": "Cancel",
+      "deleteError": "Could not delete the document. Try again.",
+      "meta": "{{size}} · uploaded by {{who}} on {{when}}",
+      "errors": {
+        "type": "Choose a PDF, PNG, JPG or DOCX file.",
+        "size": "The file must be 10 MB or smaller."
+      }
+    },
+    "activity": {
+      "title": "Activity",
+      "empty": "No activity recorded yet.",
+      "error": "Could not load the activity.",
+      "byWhen": "{{who}} · {{when}}",
+      "actions": {
+        "sensitive.viewed": "Sensitive details viewed",
+        "document.uploaded": "Document uploaded",
+        "document.opened": "Document opened",
+        "document.deleted": "Document deleted",
+        "profile.updated": "Profile updated"
+      }
+    }
   }
 }

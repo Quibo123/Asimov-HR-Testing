@@ -20,4 +20,13 @@ describe('can', () => {
     expect(can('admin', 'pipeline.offer')).toBe(true)
     expect(can('admin', 'approvals.decide')).toBe(true)
   })
+  it('gives HR the profile tabs and nobody else', () => {
+    for (const p of ['people.documents', 'people.activity', 'people.sensitive'] as const) {
+      expect(can('owner', p)).toBe(true)
+      expect(can('admin', p)).toBe(true)
+      expect(can('member', p)).toBe(false)
+      expect(can('interviewer', p)).toBe(false)
+      expect(can(undefined, p)).toBe(false)
+    }
+  })
 })

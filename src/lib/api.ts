@@ -14,10 +14,13 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
   const { data } = await supabase.auth.getSession()
   const token = data.session?.access_token
 
+  // A file upload must not get a JSON content type: the browser adds the multipart boundary
+  const isForm = options.body instanceof FormData
+
   const res = await fetch(`${BASE}${path}`, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      ...(isForm ? {} : { 'Content-Type': 'application/json' }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },

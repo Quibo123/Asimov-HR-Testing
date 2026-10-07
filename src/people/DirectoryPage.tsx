@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Button, Input } from '@heroui/react'
 import { EmptyState, ErrorState, SkeletonList } from '../components/states'
@@ -14,6 +14,7 @@ const selectClass = 'h-11 rounded-lg border bg-transparent px-2'
 export default function DirectoryPage() {
   const { t } = useTranslation('people')
   const [params, setParams] = useSearchParams()
+  const { search } = useLocation()
 
   // Search, filters and page all live in the URL
   const q = params.get('q') ?? ''
@@ -160,7 +161,15 @@ export default function DirectoryPage() {
             {data.items.map(e => (
               <li key={e.id} className="flex flex-col gap-1 rounded-lg border p-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="min-w-0 wrap-break-word font-semibold">{e.name}</h2>
+                  <h2 className="min-w-0 wrap-break-word font-semibold">
+                    <Link
+                      to={`/people/${e.id}`}
+                      state={{ from: search }}
+                      className="inline-flex min-h-11 items-center underline"
+                    >
+                      {e.name}
+                    </Link>
+                  </h2>
                   <span className="rounded border px-2 py-0.5 text-xs">{t(`directory.status.${e.status}`)}</span>
                 </div>
                 <p className="wrap-break-word">{e.designation}</p>

@@ -9,17 +9,22 @@ export type Permission =
   | 'pipeline.offer'
   | 'notes.add'
   | 'approvals.decide'
+  | 'people.documents'
+  | 'people.documents.manage'
+  | 'people.activity'
+  | 'people.sensitive'
 
 const MANAGER: Permission[] = [
   'users.view', 'users.invite', 'users.changeRole', 'users.remove',
   'pipeline.move', 'pipeline.offer', 'notes.add', 'approvals.decide',
+  'people.documents', 'people.documents.manage', 'people.activity', 'people.sensitive',
 ]
 
 const PERMISSIONS: Record<Role, Permission[]> = {
   owner: MANAGER,
   admin: MANAGER,
   member: [],
-  interviewer: ['notes.add'], // notes and ratings only: never offer or hire
+  interviewer: ['notes.add'], // notes and ratings only
 }
 
 export function can(role: Role | null | undefined, permission: Permission): boolean {
