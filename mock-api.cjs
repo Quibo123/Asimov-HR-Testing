@@ -8,6 +8,7 @@ let failDecide = false   // /__faildecide/on|off  approvals decisions fail (prov
 let delayMs = 0          // /__delay/2000 (milliseconds) | /__delay/0   every call is slow, so skeletons show
 let failGet = false      // /__getfail/on|off     Talently, approvals, people and public GET calls fail
 let empty = false        // /__empty/on|off       list endpoints return no items
+let linkTtl = 60         // /__linkttl/5          seconds a document link works (default 60)
 const events = []        // /__events             what the API "published"
 
 const ME_EMAIL = 'zeu94424@gmail.com' // must match your Supabase user
@@ -221,9 +222,61 @@ const employees = Array.from({ length: 47 }, (_, i) => {
   }
 }).sort((a, b) => a.name.localeCompare(b.name) || a.code.localeCompare(b.code))
 
-// A tiny valid PDF so the resume panel has something to show
+// ---- Employee profile (AS-206) ----
+const MANAGERS = ['Meera K', 'Arun S', 'Divya R', 'Karthik V']
+const dateOnly = (y, m, d) => new Date(Date.UTC(y, m, d)).toISOString().slice(0, 10)
+const numOf = e => Number(e.id.slice(1))
+
+const profileOf = e => {
+  const n = numOf(e)
+  return {
+    ...e,
+    email: `${e.name.toLowerCase().replace(/\s+/g, '.')}.${n}@example.com`,
+    phone: `+91 98${String(10000000 + n * 137).padStart(8, '0')}`,
+    manager: MANAGERS[n % MANAGERS.length],
+    joiningDate: dateOnly(2018 + (n % 7), (n * 5) % 12, 1 + ((n * 3) % 27)),
+    employmentType: n % 9 === 0 ? 'Contract' : 'Full-time',
+    grade: 'G' + (3 + (n % 5)),
+    exitDate: e.status === 'exited' ? '2026-09-30' : null,
+  }
+}
+
+const sensitiveOf = e => {
+  const n = numOf(e)
+  return {
+    dateOfBirth: dateOnly(1985 + (n % 15), n % 12, 1 + ((n * 7) % 27)),
+    personalEmail: `${e.name.toLowerCase().replace(/\s+/g, '.')}.${n}@personal.example.org`,
+    emergencyContact: { name: 'Family contact ' + n, relation: 'Spouse', phone: `+91 97${String(20000000 + n * 211).padStart(8, '0')}` },
+    bankAccountLast4: String(1000 + ((n * 37) % 9000)),
+    salaryBand: 'Band ' + (1 + (n % 4)),
+  }
+}
+
+// Documents live per employee. Two are seeded for Ben Thomas (AS-1002, /people/e2).
+const documents = {
+  e2: [
+    { id: 'd1', name: 'Offer letter.pdf', size: 184320, uploadedBy: 'hr@example.com', uploadedAt: iso(30 * day) },
+    { id: 'd2', name: 'ID proof.pdf', size: 92160, uploadedBy: 'hr@example.com', uploadedAt: iso(29 * day) },
+  ],
+}
+const docsFor = id => (documents[id] ??= [])
+let docSeq = 100
+
+// Expiring links: token -> { name, exp }
+const linkTokens = new Map()
+
+// The audit log the Activity tab reads
+const audit = []
+let auditSeq = 0
+const logAudit = (employeeId, action, detail = '', by = ME_EMAIL, at = new Date().toISOString()) =>
+  audit.push({ id: 'a' + ++auditSeq, employeeId, at, by, action, detail })
+logAudit('e2', 'document.uploaded', 'Offer letter.pdf', 'hr@example.com', iso(30 * day))
+logAudit('e2', 'document.uploaded', 'ID proof.pdf', 'hr@example.com', iso(29 * day))
+
+// A tiny valid PDF so the resume panel and documents have something to show
 function makePdf(text) {
-  const stream = `BT /F1 24 Tf 60 760 Td (${text}) Tj ET`
+  const safe = String(text).replace(/[()\\]/g, '')
+  const stream = `BT /F1 24 Tf 60 760 Td (${safe}) Tj ET`
   const objs = [
     '<< /Type /Catalog /Pages 2 0 R >>',
     '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
@@ -252,14 +305,15 @@ function send(res, status, data) {
   res.end(data === undefined ? '' : JSON.stringify(data))
 }
 
-// Multipart bodies (the apply form) must not be parsed as JSON
+// JSON bodies are parsed. Multipart bodies (the apply form, document uploads) are kept as raw text.
 function readBody(req) {
   return new Promise(resolve => {
     let raw = ''
     req.on('data', c => (raw += c))
     req.on('end', () => {
-      const isJson = (req.headers['content-type'] || '').includes('json')
-      try { resolve(raw && isJson ? JSON.parse(raw) : {}) } catch { resolve({}) }
+      const type = req.headers['content-type'] || ''
+      if (type.includes('multipart')) return resolve({ __raw: raw })
+      try { resolve(raw && type.includes('json') ? JSON.parse(raw) : {}) } catch { resolve({}) }
     })
   })
 }
@@ -288,6 +342,7 @@ http
     if (parts[0] === '__delay') { delayMs = Number(parts[1]) || 0; return send(res, 200, { delayMs }) }
     if (parts[0] === '__getfail') { failGet = parts[1] === 'on'; return send(res, 200, { failGet }) }
     if (parts[0] === '__empty') { empty = parts[1] === 'on'; return send(res, 200, { empty }) }
+    if (parts[0] === '__linkttl') { linkTtl = Number(parts[1]) || 60; return send(res, 200, { linkTtl }) }
 
     // ---- AS-123 test switches: slow, failing and empty responses ----
     if (delayMs) await new Promise(r => setTimeout(r, delayMs))
@@ -303,6 +358,17 @@ http
     if (req.method === 'GET' && path === '/files/resume.pdf') {
       res.writeHead(200, { 'Content-Type': 'application/pdf', ...cors })
       return res.end(makePdf('Sample resume'))
+    }
+
+    // ---- Expiring document links (no token: the link itself is the permission, and it expires) ----
+    if (req.method === 'GET' && parts[0] === 'files' && parts[1] === 'doc' && parts[2]) {
+      const link = linkTokens.get(parts[2])
+      if (!link || link.exp < Date.now()) {
+        res.writeHead(410, { 'Content-Type': 'text/plain; charset=utf-8', ...cors })
+        return res.end('This link has expired. Go back to the profile and open the document again.')
+      }
+      res.writeHead(200, { 'Content-Type': 'application/pdf', ...cors })
+      return res.end(makePdf(link.name))
     }
 
     // ---- Careers (public, no token) ----
@@ -372,6 +438,68 @@ http
         pageSize,
         facets: { locations: LOCATIONS, departments: DEPARTMENTS },
       })
+    }
+
+    // ---- Employee profile (AS-206): overview and job for any role, the rest for HR only ----
+    if (parts[0] === 'people' && parts[1] && parts[1] !== 'directory') {
+      const emp = employees.find(e => e.id === parts[1])
+      if (!emp) return send(res, 404, { error: 'not found' })
+      const sub = parts[2]
+
+      if (req.method === 'GET' && !sub) return send(res, 200, profileOf(emp))
+
+      // Sensitive, documents and activity: refused for anyone who is not HR, whatever the web app shows
+      if (!canManage()) return send(res, 403, { error: 'forbidden' })
+
+      if (req.method === 'GET' && sub === 'sensitive' && !parts[3]) {
+        logAudit(emp.id, 'sensitive.viewed')
+        return send(res, 200, sensitiveOf(emp))
+      }
+
+      if (req.method === 'GET' && sub === 'activity' && !parts[3]) {
+        return send(res, 200, audit.filter(a => a.employeeId === emp.id).reverse())
+      }
+
+      if (sub === 'documents') {
+        const list = docsFor(emp.id)
+
+        if (req.method === 'GET' && !parts[3]) return send(res, 200, list)
+
+        if (req.method === 'POST' && !parts[3]) {
+          if (emp.status === 'exited') return send(res, 409, { error: 'employee has exited, profile is read-only' })
+          const raw = body.__raw || ''
+          const m = /filename="([^"]+)"/.exec(raw)
+          if (!m) return send(res, 422, { error: 'file required' })
+          const name = m[1]
+          const ext = name.split('.').pop().toLowerCase()
+          const size = Number(req.headers['content-length']) || raw.length
+          if (!['pdf', 'png', 'jpg', 'jpeg', 'docx'].includes(ext)) return send(res, 422, { error: 'file type not allowed' })
+          if (size > 10 * 1024 * 1024) return send(res, 422, { error: 'file too large' })
+          const doc = { id: 'd' + ++docSeq, name, size, uploadedBy: ME_EMAIL, uploadedAt: new Date().toISOString() }
+          list.push(doc)
+          logAudit(emp.id, 'document.uploaded', name)
+          return send(res, 201, doc)
+        }
+
+        if (req.method === 'POST' && parts[3] && parts[4] === 'link') {
+          const doc = list.find(d => d.id === parts[3])
+          if (!doc) return send(res, 404, { error: 'not found' })
+          const token = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)
+          const exp = Date.now() + linkTtl * 1000
+          linkTokens.set(token, { name: doc.name, exp })
+          logAudit(emp.id, 'document.opened', doc.name)
+          return send(res, 200, { url: `http://localhost:3000/files/doc/${token}`, expiresAt: new Date(exp).toISOString() })
+        }
+
+        if (req.method === 'DELETE' && parts[3]) {
+          if (emp.status === 'exited') return send(res, 409, { error: 'employee has exited, profile is read-only' })
+          const doc = list.find(d => d.id === parts[3])
+          if (!doc) return send(res, 404, { error: 'not found' })
+          documents[emp.id] = list.filter(d => d.id !== doc.id)
+          logAudit(emp.id, 'document.deleted', doc.name)
+          return send(res, 204)
+        }
+      }
     }
 
     // ---- Talently candidates: managers do everything, interviewers read and add notes ----
