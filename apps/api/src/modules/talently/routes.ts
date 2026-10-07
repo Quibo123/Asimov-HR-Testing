@@ -1,6 +1,15 @@
 import type { FastifyInstance } from "fastify";
-import { ping } from "./service.js";
 
 export async function talentlyRoutes(app: FastifyInstance) {
-  app.get("/talently/ping", async (request) => ping(request));
+  app.get(
+    "/talently/ping",
+    { config: { requires: "talently.jobs.view" } },
+    async (request) => ({
+      module: "talently",
+      ok: true,
+      userId: request.user.id,
+      tenantId: request.tenantId,
+      role: request.role,
+    }),
+  );
 }

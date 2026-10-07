@@ -1,4 +1,4 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyRequest } from "fastify";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { prisma } from "./prisma.js";
@@ -8,9 +8,9 @@ export type AuthUser = { id: string; email: string | undefined };
 
 declare module "fastify" {
   interface FastifyRequest {
-    user: AuthUser | null;
+    user: { id: string; email?: string }; 
     tenantId: string;
-    role: Role | null;
+    role: Role;
   }
 }
 
@@ -26,14 +26,15 @@ const tenantIdSchema = z.string().uuid();
 const PUBLIC_EXACT = new Set(["/health"]);
 const PUBLIC_PREFIXES = ["/public/"]; // unga real public portal path ku maathunga
 
-function isPublic(path: string) {
+export function isPublic(path: string) {
   return PUBLIC_EXACT.has(path) || PUBLIC_PREFIXES.some((p) => path.startsWith(p));
 }
 
 export function registerAuthHook(app: FastifyInstance) {
-  app.decorateRequest("user", null);
+  app.decorateRequest("user", null as unknown as FastifyRequest["user"]);
   app.decorateRequest("tenantId", "");
-  app.decorateRequest("role", null);
+  app.decorateRequest("role", "" as Role);
+  
 
   app.addHook("onRequest", async (request, reply) => {
     const path = request.url.split("?")[0];

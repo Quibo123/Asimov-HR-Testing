@@ -16,6 +16,7 @@ model Tenant {
   name        String
   createdAt   DateTime     @default(now())
   memberships Membership[]
+  auditEntries AuditEntry[]
 
   @@schema("platform")
 }
@@ -58,7 +59,8 @@ model User {
   email       String       @unique
   createdAt   DateTime     @default(now())
   memberships Membership[]
-
+  auditEntries AuditEntry[]
+  
   @@schema("platform")
 }
 
@@ -76,3 +78,21 @@ model Membership {
   @@schema("platform")
 }
 
+model AuditEntry {
+  id        String   @id @default(uuid())
+  tenantId  String
+  actorId   String
+  action    String   // e.g. "member.role_changed"
+  entity    String   // e.g. "Membership"
+  entityId  String
+  before    Json?    // null on create
+  after     Json?    // null on delete
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  actor  User   @relation(fields: [actorId], references: [id])
+
+  @@index([tenantId, createdAt])
+  @@index([tenantId, entity, entityId])
+  @@schema("platform")
+}
