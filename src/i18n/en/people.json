@@ -1,1 +1,33 @@
-{ "title": "People" }
+{
+  "title": "People",
+  "directory": {
+    "title": "Employee directory",
+    "search": "Search by name or employee code",
+    "clear": "Clear filters",
+    "filters": {
+      "location": "Location",
+      "department": "Department",
+      "status": "Status",
+      "all": "All"
+    },
+    "status": {
+      "active": "Active",
+      "on_leave": "On leave",
+      "exited": "Exited"
+    },
+    "count": "Showing {{from}} to {{to}} of {{total}}",
+    "code": "Code {{code}}",
+    "empty": "No employees in the directory yet.",
+    "noMatch": "No employees match your search.",
+    "error": "Could not load the directory.",
+    "outOfRange": "That page does not exist.",
+    "firstPage": "Go to the first page",
+    "pagination": {
+      "label": "Pages",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {{n}}",
+      "of": "Page {{page}} of {{pages}}"
+    }
+  }
+}
