@@ -26,9 +26,9 @@ export default function AppLayout() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="flex items-center gap-4 p-3 border-b">
+      <header className="flex items-center gap-2 border-b p-3 md:gap-4">
         <button
-          className="md:hidden"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center md:hidden"
           aria-label={t('menu')}
           onClick={() => setOpen(!open)}
         >
@@ -50,24 +50,24 @@ export default function AppLayout() {
             {t('theme.toggle')}
           </button>
           <span className="hidden max-w-40 truncate sm:inline">{me?.email ?? t('user')}</span>
-          <button onClick={() => supabase.auth.signOut()}>{t('signOut')}</button>
+          <button className="min-h-11 px-2" onClick={() => supabase.auth.signOut()}>{t('signOut')}</button>
         </div>
       </header>
 
-      <div className="flex flex-1">
-        <aside className={`${open ? 'block' : 'hidden'} md:block w-48 p-3 border-r`}>
+      <div className="flex flex-1 flex-col md:flex-row">
+        <aside className={`${open ? 'block' : 'hidden'} w-full border-b p-3 md:block md:w-48 md:border-b-0 md:border-r`}>
           {modules.map(m => (
             <NavLink
               key={m.path}
               to={m.path}
-              className="block py-1"
+              className="flex min-h-11 items-center"
               onClick={() => setOpen(false)}
             >
               {t(m.key)}
             </NavLink>
           ))}
         </aside>
-        <main className="flex-1 p-4">
+        <main className="min-w-0 flex-1 p-4">
           <Outlet />
         </main>
       </div>

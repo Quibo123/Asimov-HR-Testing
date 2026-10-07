@@ -1,7 +1,8 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-const tabClass = ({ isActive }: { isActive: boolean }) => (isActive ? 'font-semibold underline' : '')
+const tabClass = ({ isActive }: { isActive: boolean }) =>
+  `inline-flex min-h-11 items-center ${isActive ? 'font-semibold underline' : ''}`
 
 export default function TalentlyLayout() {
   const { t } = useTranslation('ats')

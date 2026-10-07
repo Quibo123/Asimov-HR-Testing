@@ -8,6 +8,7 @@ import {
   useReactTable, type ColumnFiltersState, type OnChangeFn, type SortingState,
 } from '@tanstack/react-table'
 import { formatInZone } from '../lib/time'
+import { EmptyState, ErrorState, ShareCareersLink, SkeletonList } from '../components/states'
 import { useCandidates } from './queries'
 import { useAuth } from '../auth/authContext'
 import { formatPoints, localZone, maskStatus, parseSort, parseStatus, serializeSort, visibleStatuses } from './logic'
@@ -52,7 +53,7 @@ export default function CandidatesPage() {
       { replace: true },
     )
 
-    const rows = useMemo(
+  const rows = useMemo(
     () => (data ?? []).map(r => ({ ...r, status: maskStatus(r.status, role) })),
     [data, role],
   )
@@ -136,7 +137,7 @@ export default function CandidatesPage() {
         <label className="flex flex-col gap-1 text-sm">
           {t('filters.status')}
           <select
-            className="h-10 rounded-lg border bg-transparent px-2"
+            className="h-11 rounded-lg border bg-transparent px-2"
             value={status}
             onChange={e => setParam('status', e.target.value)}
           >
@@ -150,7 +151,7 @@ export default function CandidatesPage() {
         <label className="flex flex-col gap-1 text-sm">
           {t('filters.job')}
           <select
-            className="h-10 rounded-lg border bg-transparent px-2"
+            className="h-11 rounded-lg border bg-transparent px-2"
             value={job}
             onChange={e => setParam('job', e.target.value)}
           >
@@ -162,21 +163,25 @@ export default function CandidatesPage() {
         </label>
 
         {(status || job) && (
-          <Button size="sm" variant="flat" onPress={clearFilters}>{t('filters.clear')}</Button>
+          <Button variant="flat" className="min-h-11" onPress={clearFilters}>{t('filters.clear')}</Button>
         )}
       </div>
 
-      {isPending && <p>{t('loading')}</p>}
+      {isPending && <SkeletonList rows={5} height="h-12" />}
 
-      {isError && (
-        <div role="alert" className="flex flex-col items-start gap-2">
-          <p>{t('error')}</p>
-          <Button onPress={() => void refetch()}>{t('retry')}</Button>
-        </div>
+      {isError && <ErrorState message={t('error')} onRetry={() => void refetch()} />}
+
+      {!isPending && !isError && rows.length === 0 && (
+        <EmptyState message={t('empty')}>
+          <ShareCareersLink />
+        </EmptyState>
       )}
 
-      {!isPending && !isError && rows.length === 0 && <p>{t('empty')}</p>}
-      {rows.length > 0 && visibleRows.length === 0 && <p>{t('noMatch')}</p>}
+      {rows.length > 0 && visibleRows.length === 0 && (
+        <EmptyState message={t('noMatch')}>
+          <Button variant="flat" className="min-h-11" onPress={clearFilters}>{t('filters.clear')}</Button>
+        </EmptyState>
+      )}
 
       {visibleRows.length > 0 && (
         <div className="overflow-x-auto">
@@ -192,7 +197,7 @@ export default function CandidatesPage() {
                         {header.column.getCanSort() ? (
                           <button
                             type="button"
-                            className="inline-flex items-center gap-1 font-semibold"
+                            className="inline-flex min-h-11 items-center gap-1 font-semibold"
                             onClick={header.column.getToggleSortingHandler()}
                           >
                             {flexRender(header.column.columnDef.header, header.getContext())}
@@ -216,7 +221,7 @@ export default function CandidatesPage() {
                       {cell.column.id === 'name' ? (
                         <button
                           type="button"
-                          className="text-left underline"
+                          className="min-h-11 text-left underline"
                           onClick={() => setParam('c', row.original.id, true)}
                         >
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}

@@ -12,7 +12,7 @@ export default function ApplySuccess() {
         <li>{t('success.step2')}</li>
         <li>{t('success.step3')}</li>
       </ol>
-      <Link to="/careers" className="underline">{t('success.back')}</Link>
+      <Link to="/careers" className="inline-flex min-h-11 items-center underline">{t('success.back')}</Link>
     </div>
   )
 }

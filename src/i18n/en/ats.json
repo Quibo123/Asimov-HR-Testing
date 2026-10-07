@@ -4,7 +4,7 @@
   "loading": "Loading candidates...",
   "error": "Could not load the candidates.",
   "retry": "Try again",
-  "empty": "No candidates yet.",
+  "empty": "No candidates yet — share your careers link",
   "noMatch": "No candidates match these filters.",
   "filters": {
     "status": "Status",

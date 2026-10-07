@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Button } from '@heroui/react'
+import { EmptyState, ErrorState, SkeletonList } from '../components/states'
 import { useApprovals, useDecide } from './queries'
 import ApprovalCard from './ApprovalCard'
 
@@ -17,18 +17,13 @@ export default function ApprovalsInbox() {
         )}
       </div>
 
-      {isPending && <p>{t('loading')}</p>}
+      {isPending && <SkeletonList rows={2} height="h-40" />}
 
-      {isError && (
-        <div role="alert" className="flex flex-col items-start gap-2">
-          <p>{t('error')}</p>
-          <Button className="min-h-11" onPress={() => void refetch()}>{t('retry')}</Button>
-        </div>
-      )}
+      {isError && <ErrorState message={t('error')} onRetry={() => void refetch()} />}
 
       {decide.isError && <p role="alert" className="text-red-600">{t('decideError')}</p>}
 
-      {data && data.length === 0 && <p>{t('empty')}</p>}
+      {data && data.length === 0 && <EmptyState message={t('empty')} />}
 
       {data && data.length > 0 && (
         <ul className="flex flex-col gap-3">

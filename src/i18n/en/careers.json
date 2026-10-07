@@ -34,7 +34,9 @@
     "yes": "Yes",
     "no": "No",
     "ratingLabel": "Rating {{n}} of {{max}}",
-    "sendError": "Could not send your application. Your answers are still here, so try again."
+    "sendError": "Could not send your application. Your answers are still here, so try again.",
+    "uploading": "Uploading your application",
+    "uploadingPercent": "Uploading... {{n}}%"
   },
   "errors": {
     "required": "This field is required.",

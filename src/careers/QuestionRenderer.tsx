@@ -51,7 +51,7 @@ export default function QuestionRenderer({ question: q, value, error, onChange }
           errorMessage={error}
         >
           {q.options.map(o => (
-            <Radio key={o} value={o}>{o}</Radio>
+            <Radio className="min-h-11" key={o} value={o}>{o}</Radio>
           ))}
         </RadioGroup>
       )
@@ -66,8 +66,8 @@ export default function QuestionRenderer({ question: q, value, error, onChange }
           isInvalid={!!error}
           errorMessage={error}
         >
-          <Radio value="yes">{t('apply.yes')}</Radio>
-          <Radio value="no">{t('apply.no')}</Radio>
+          <Radio className="min-h-11" value="yes">{t('apply.yes')}</Radio>
+          <Radio className="min-h-11" value="no">{t('apply.no')}</Radio>
         </RadioGroup>
       )
 
@@ -84,7 +84,7 @@ export default function QuestionRenderer({ question: q, value, error, onChange }
                 aria-pressed={value === n}
                 aria-label={t('apply.ratingLabel', { n, max })}
                 onClick={() => onChange(n)}
-                className={`h-10 w-10 rounded-lg border ${
+                className={`h-11 w-11 rounded-lg border ${
   value === n ? 'bg-(--brand) text-white' : ''
 }`}
               >

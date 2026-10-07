@@ -15,9 +15,9 @@ export default function CareersLayout() {
     <div className="min-h-screen flex flex-col">
       <header className="flex items-center gap-3 p-3 border-b-2 border-(--brand)">
         <img id="tenant-logo" alt={t('logoAlt')} className="h-8" />
-        <Link to="/careers" className="font-semibold">{t('layoutTitle')}</Link>
+          <Link to="/careers" className="inline-flex min-h-11 items-center font-semibold">{t('layoutTitle')}</Link>
       </header>
-      <main className="mx-auto w-full max-w-2xl p-4">
+        <main className="mx-auto w-full min-w-0 max-w-2xl p-4">
         <Outlet />
       </main>
     </div>

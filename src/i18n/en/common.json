@@ -13,6 +13,13 @@
   "theme": {
     "toggle": "Toggle light/dark"
   },
+  "states": {
+  "loading": "Loading...",
+  "retry": "Try again",
+  "errorTitle": "Something went wrong",
+  "shareLink": "Copy careers link",
+  "copied": "Link copied"
+  },
   "brand": {
     "a": "Brand A",
     "b": "Brand B"

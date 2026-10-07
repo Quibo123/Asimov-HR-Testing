@@ -55,7 +55,9 @@ export default function TemplateBuilder({ initial }: { initial: Template }) {
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
-      <Link to="/talently/templates" className="text-sm underline">{t('editor.back')}</Link>
+      <Link to="/talently/templates" className="inline-flex min-h-11 items-center text-sm underline">
+        {t('editor.back')}
+      </Link>
       <h1 className="text-xl font-semibold">
         {initial.id ? t('editor.editTitle') : t('editor.newTitle')}
       </h1>
@@ -80,7 +82,13 @@ export default function TemplateBuilder({ initial }: { initial: Template }) {
         />
       ))}
 
-      <Button variant="bordered" className="self-start" onPress={() => setQuestions(p => [...p, newQuestion()])}>
+      {questions.length === 0 && <p>{t('editor.noQuestions')}</p>}
+
+      <Button
+        variant="bordered"
+        className="min-h-11 self-start"
+        onPress={() => setQuestions(p => [...p, newQuestion()])}
+      >
         {t('editor.addQuestion')}
       </Button>
 
@@ -91,10 +99,16 @@ export default function TemplateBuilder({ initial }: { initial: Template }) {
         >
           {t('weights', { total, max: WEIGHT_TOTAL })}
         </p>
-        <Button color="primary" isDisabled={issues.length > 0 || busy} isLoading={busy} onPress={handleSave}>
+        <Button
+          color="primary"
+          className="min-h-11"
+          isDisabled={issues.length > 0 || busy}
+          isLoading={busy}
+          onPress={handleSave}
+        >
           {t('editor.save')}
         </Button>
-        <Button variant="flat" onPress={() => setShowPreview(s => !s)}>
+        <Button variant="flat" className="min-h-11" onPress={() => setShowPreview(s => !s)}>
           {showPreview ? t('editor.hidePreview') : t('editor.preview')}
         </Button>
       </div>

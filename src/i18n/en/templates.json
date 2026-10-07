@@ -5,7 +5,7 @@
   "list": {
     "new": "New template",
     "loading": "Loading templates...",
-    "empty": "No templates yet. Create your first one.",
+    "empty": "Add a question to see the preview.",
     "error": "Could not load the templates.",
     "version": "Version {{n}}",
     "questions": "{{n}} questions",
@@ -60,7 +60,7 @@
   },
   "issues": {
     "name": "Give the template a name.",
-    "noQuestions": "Add at least one question.",
+    "noQuestions": "No questions yet. Add your first question.",
     "weights": "Weights add up to {{total}}. They must add up to {{max}}.",
     "label": "Question {{n}} needs text.",
     "options": "Question {{n}} needs at least two options with text."

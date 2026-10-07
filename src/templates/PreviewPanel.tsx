@@ -17,6 +17,7 @@ export default function PreviewPanel({ questions }: { questions: TemplateQuestio
     >
       <h2 className="text-lg font-semibold">{t('preview.title')}</h2>
       <p className="text-sm opacity-80">{t('preview.note')}</p>
+      {candidateQuestions.length === 0 && <p>{t('preview.empty')}</p>}
       {candidateQuestions.map(q => (
         <QuestionRenderer
           key={q.id}
