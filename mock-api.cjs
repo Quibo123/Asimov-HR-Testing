@@ -6,7 +6,7 @@ let force401 = false     // /__401/on|off
 let failApply = false    // /__fail/on|off        the apply request is dropped
 let failDecide = false   // /__faildecide/on|off  approvals decisions fail (proves the rollback)
 let delayMs = 0          // /__delay/2000 (milliseconds) | /__delay/0   every call is slow, so skeletons show
-let failGet = false      // /__getfail/on|off     Talently, approvals and public GET calls fail
+let failGet = false      // /__getfail/on|off     Talently, approvals, people and public GET calls fail
 let empty = false        // /__empty/on|off       list endpoints return no items
 const events = []        // /__events             what the API "published"
 
@@ -190,6 +190,37 @@ let approvals = [
   },
 ]
 
+// ---- Employee directory (AS-202) ----
+const LOCATIONS = ['Chennai', 'Bengaluru', 'Mumbai', 'Remote']
+const DEPARTMENTS = ['Engineering', 'Design', 'HR', 'Finance', 'Sales']
+const DESIGNATIONS = {
+  Engineering: ['Software Engineer', 'Senior Software Engineer', 'Engineering Manager'],
+  Design: ['Product Designer', 'Design Lead'],
+  HR: ['HR Executive', 'HR Manager'],
+  Finance: ['Accountant', 'Finance Manager'],
+  Sales: ['Sales Executive', 'Account Manager'],
+}
+// "Priya Sharma" appears twice on purpose, so same-name people can be told apart
+const NAMES = [
+  'Asha Rao', 'Ben Thomas', 'Chitra Devi', 'Dev Patel', 'Esha Nair', 'Farhan Ali', 'Gita Menon',
+  'Hari Prasad', 'Isha Kapoor', 'Jay Mehta', 'Kavya Iyer', 'Lakshmi Narayan', 'Manoj Kumar',
+  'Nisha Verma', 'Om Prakash', 'Priya Sharma', 'Priya Sharma', 'Rahul Nair', 'Sneha Pillai',
+  'Tarun Joshi', 'Uma Maheswari', 'Vikram Singh', 'Yamini Rao', 'Zoya Khan',
+]
+const employees = Array.from({ length: 47 }, (_, i) => {
+  const department = DEPARTMENTS[i % DEPARTMENTS.length]
+  const designations = DESIGNATIONS[department]
+  return {
+    id: 'e' + (i + 1),
+    code: 'AS-' + String(1001 + i),
+    name: NAMES[i % NAMES.length],
+    designation: designations[i % designations.length],
+    department,
+    location: LOCATIONS[(i * 3) % LOCATIONS.length],
+    status: i % 11 === 0 ? 'exited' : i % 7 === 0 ? 'on_leave' : 'active',
+  }
+}).sort((a, b) => a.name.localeCompare(b.name) || a.code.localeCompare(b.code))
+
 // A tiny valid PDF so the resume panel has something to show
 function makePdf(text) {
   const stream = `BT /F1 24 Tf 60 760 Td (${text}) Tj ET`
@@ -260,7 +291,7 @@ http
 
     // ---- AS-123 test switches: slow, failing and empty responses ----
     if (delayMs) await new Promise(r => setTimeout(r, delayMs))
-    if (failGet && req.method === 'GET' && ['talently', 'approvals', 'public'].includes(parts[0])) {
+    if (failGet && req.method === 'GET' && ['talently', 'approvals', 'public', 'people'].includes(parts[0])) {
       return send(res, 500, { error: 'simulated failure' })
     }
     if (empty && req.method === 'GET' &&
@@ -308,6 +339,39 @@ http
 
     if (req.method === 'GET' && path === '/me') {
       return send(res, 200, { id: 'u1', email: ME_EMAIL, role })
+    }
+
+    // ---- Employee directory (token, any role) ----
+    if (req.method === 'GET' && path === '/people/directory') {
+      const sp = new URL(req.url, 'http://localhost').searchParams
+      const pageSize = Math.min(50, Number(sp.get('pageSize')) || 20)
+      const page = Math.max(1, Number(sp.get('page')) || 1)
+
+      if (empty) {
+        return send(res, 200, { items: [], total: 0, page, pageSize, facets: { locations: [], departments: [] } })
+      }
+
+      // Partial, case-insensitive match. Every typed word must appear in the name or the code.
+      const words = (sp.get('q') || '').trim().toLowerCase().split(/\s+/).filter(Boolean)
+      const location = sp.get('location') || ''
+      const department = sp.get('department') || ''
+      const status = sp.get('status') || ''
+
+      const list = employees.filter(e => {
+        const haystack = (e.name + ' ' + e.code).toLowerCase()
+        return words.every(w => haystack.includes(w)) &&
+          (!location || e.location === location) &&
+          (!department || e.department === department) &&
+          (!status || e.status === status)
+      })
+
+      return send(res, 200, {
+        items: list.slice((page - 1) * pageSize, page * pageSize),
+        total: list.length,
+        page,
+        pageSize,
+        facets: { locations: LOCATIONS, departments: DEPARTMENTS },
+      })
     }
 
     // ---- Talently candidates: managers do everything, interviewers read and add notes ----
