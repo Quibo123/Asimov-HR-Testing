@@ -36,4 +36,5 @@ describe('can', () => {
     expect(can('interviewer', 'people.import')).toBe(false)
     expect(can(undefined, 'people.import')).toBe(false)
   })
+
 })

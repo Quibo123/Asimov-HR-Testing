@@ -53,3 +53,27 @@ export type ActivityEntry = {
   action: string
   detail: string
 }
+export type OrgPerson = {
+  id: string
+  code: string
+  name: string
+  designation: string
+  department: string
+  managerId: string | null
+  status: EmployeeStatus
+}
+
+export type ImportBadRow = {
+  row: number
+  values: Record<string, string>
+  errors: string[]
+}
+
+export type ImportPreview = {
+  total: number
+  ready: number
+  invalid: number
+  badRows: ImportBadRow[]
+}
+
+export type ImportResult = { imported: number; skipped: number }

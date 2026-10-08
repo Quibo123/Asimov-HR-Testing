@@ -14,7 +14,10 @@ import TemplatesList from './templates/TemplatesList'
 import TemplateEditorPage from './templates/TemplateEditorPage'
 import TalentlyLayout from './ats/TalentlyLayout'
 import CandidatesPage from './ats/CandidatesPage'
+import PeopleLayout from './people/PeopleLayout'
 import DirectoryPage from './people/DirectoryPage'
+import OrgPage from './people/OrgPage'
+import ImportPage from './people/ImportPage'
 import ProfilePage from './people/ProfilePage'
 
 const ModulePage = ({ ns }: { ns: string }) => {
@@ -47,8 +50,12 @@ export default function App() {
             <Route path="candidates" element={<CandidatesPage />} />
           </Route>
 
-          <Route path="/people" element={<Navigate to="/people/directory" replace />} />
-          <Route path="/people/directory" element={<DirectoryPage />} />
+          <Route path="/people" element={<PeopleLayout />}>
+            <Route index element={<Navigate to="/people/directory" replace />} />
+            <Route path="directory" element={<DirectoryPage />} />
+            <Route path="org" element={<OrgPage />} />
+            <Route path="import" element={<ImportPage />} />
+          </Route>
           <Route path="/people/:id" element={<ProfilePage />} />
 
           <Route path="/onboard" element={<ModulePage ns="onboard" />} />

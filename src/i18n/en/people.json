@@ -1,5 +1,11 @@
 {
   "title": "People",
+  "nav": {
+    "label": "People sections",
+    "directory": "Directory",
+    "org": "Org",
+    "import": "Import"
+  },
   "directory": {
     "title": "Employee directory",
     "search": "Search by name or employee code",
@@ -107,6 +113,64 @@
         "document.deleted": "Document deleted",
         "profile.updated": "Profile updated"
       }
+    }
+  },
+  "org": {
+    "title": "Organisation",
+    "intro": "Reporting lines. Open a person to see who reports to them.",
+    "count": "{{n}} people",
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all",
+    "expand": "Show the team of {{name}}",
+    "collapse": "Hide the team of {{name}}",
+    "manages_one": "Manages {{count}} person",
+    "manages_other": "Manages {{count}} people",
+    "code": "Code {{code}}",
+    "exited": "Exited",
+    "empty": "No employees yet.",
+    "error": "Could not load the organisation."
+  },
+  "import": {
+    "title": "Import employees",
+    "intro": "Upload a CSV file. Every row is checked first, and nothing is saved until you confirm.",
+    "columns": "Columns: {{list}}",
+    "template": "Download CSV template",
+    "choose": "Choose a CSV file",
+    "chooseAgain": "Upload a corrected file",
+    "hint": "CSV, up to 5 MB. The first row must be the column names.",
+    "fileName": "File: {{name}}",
+    "checking": "Checking your file...",
+    "summary": "{{ready}} ready, {{bad}} need fixing",
+    "allGood": "Every row is ready.",
+    "noneReady": "No rows are ready. Fix the file and upload it again.",
+    "badTitle": "Rows that need fixing",
+    "cols": { "row": "Row", "code": "Code", "name": "Name", "problems": "Problems" },
+    "showing": "Showing the first {{shown}} of {{total}} rows. The error file has all of them.",
+    "downloadErrors": "Download error file",
+    "importReady": "Import the {{n}} ready rows",
+    "importing": "Importing...",
+    "importError": "Could not import. Nothing was changed. Try again.",
+    "previewError": "Could not check the file. Try again.",
+    "missingColumns": "The file is missing these columns: {{list}}",
+    "successTitle_one": "{{count}} employee imported",
+    "successTitle_other": "{{count}} employees imported",
+    "skipped": "{{n}} rows were left out. Download the error file, fix them and upload it again.",
+    "goDirectory": "Go to the directory",
+    "another": "Import another file",
+    "fileErrors": {
+      "type": "Choose a .csv file.",
+      "size": "The file must be 5 MB or smaller."
+    },
+    "reasons": {
+      "code_required": "Employee code is missing",
+      "code_exists": "This employee code already exists",
+      "code_duplicate": "This code appears more than once in the file",
+      "name_required": "Name is missing",
+      "email_invalid": "Email is not valid",
+      "department_unknown": "Department is not one we know",
+      "location_unknown": "Location is not one we know",
+      "manager_unknown": "Manager code was not found",
+      "date_invalid": "Joining date must look like 2026-10-12"
     }
   }
 }
