@@ -1,0 +1,39 @@
+{
+  "name": "asimov-hr-qa",
+  "version": "1.0.0",
+  "private": true,
+  "description": "S-105 QA automation for Asimov HR: CodeceptJS (Playwright UI + REST API) with repeatable seed data and GitHub Actions CI.",
+  "scripts": {
+    "test": "codeceptjs run --invert --grep \"@knownissue\"",
+    "test:ci": "npm run test:api:ci && npm run test:ui:ci",
+    "test:api": "codeceptjs run --config codecept.conf.api.ts",
+    "test:ui": "codeceptjs run --config codecept.conf.ui.ts --invert --grep \"@knownissue\"",
+    "test:smoke": "codeceptjs run --grep @smoke",
+    "test:api:smoke": "codeceptjs run --config codecept.conf.api.ts --grep @smoke",
+    "test:ui:smoke": "codeceptjs run --config codecept.conf.ui.ts --grep @smoke",
+    "test:all": "codeceptjs run",
+    "test:ui:all": "codeceptjs run --config codecept.conf.ui.ts",
+    "test:known-issues": "codeceptjs run --grep \"@knownissue\"",
+    "test:api:ci": "npm run test:api",
+    "test:ui:ci": "npm run test:ui",
+    "seed": "tsx tests/data/seed.ts",
+    "seed:dry-run": "tsx tests/data/seed.ts --dry-run",
+    "typecheck": "tsc --noEmit",
+    "lint:workflow": "tsx scripts/validate-workflow.ts",
+    "allure:generate": "rm -rf allure-report && allure generate allure-results -o allure-report",
+    "allure:open": "allure open allure-report",
+    "allure:serve": "allure serve allure-results"
+  },
+  "devDependencies": {
+    "allure": "^3.20.1",
+    "allure-codeceptjs": "^3.13.0",
+    "codeceptjs": "4.2.0",
+    "dotenv": "^17.2.3",
+    "playwright": "1.63.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.3"
+  }
+}

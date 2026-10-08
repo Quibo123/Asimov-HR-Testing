@@ -1,0 +1,31 @@
+# Asimov HR QA - local secrets and environment
+.env
+.env.local
+.env.*.local
+
+# Never commit a real env file, but keep the documented template
+!.env.example
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Test artifacts (screenshots, Playwright traces, videos, logs)
+# Ignore the contents but keep the directory itself in git, so a fresh clone
+# has somewhere to write screenshots and traces.
+artifacts/*
+!artifacts/.gitkeep
+
+# Allure Report 3 (generated results and HTML report)
+allure-results/
+allure-report/
+allure-results-ui/
+allure-report-ui/
+
+# Playwright / OS noise
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

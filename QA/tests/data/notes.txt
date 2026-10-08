@@ -1,0 +1,2 @@
+This is a plain text file. It is used to prove the profile documents
+upload rejects anything that is not PDF, PNG, JPG or DOCX.
