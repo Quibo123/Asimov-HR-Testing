@@ -41,3 +41,7 @@ Cross-cutting code lives in `apps/api/src/platform/`.
    11. **Scoring.** Scoring is done through the `Scorer` interface. A failed must-have is flagged, never a
     rejection. The AI scorer must never run unless the tenant setting `scoring.aiEnabled` is on.
     Scorer classes contain no database code, and every scoring rule has a unit test.
+
+    12. **Approvals.** Every approval goes through `createApprovalRequest` (platform/approvals). Modules never
+    decide approvals themselves and never accept an approver chain from a client. They listen for
+    `approval.decided` with a handler that is safe to run twice. Nobody approves their own request.

@@ -22,6 +22,8 @@ model Tenant {
   applications Application[]
   settings TenantSetting[]
   scores   Score[]
+  approvalRequests ApprovalRequest[]
+  approvalSteps    ApprovalStep[]
   
   @@schema("platform")
 }
@@ -75,6 +77,7 @@ model Membership {
   tenantId  String
   role      Role
   createdAt DateTime @default(now())
+  managerId String? // user id of this member's manager (used by the MANAGER approver rule)
 
   user      User     @relation(fields: [userId], references: [id])
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
@@ -277,4 +280,82 @@ model Score {
   @@unique([applicationId, scorer]) // one score per scorer; re-scoring replaces it
   @@index([tenantId])
   @@schema("talently")
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  WITHDRAWN
+
+  @@schema("platform")
+}
+
+enum ApprovalStepStatus {
+  WAITING   // not its turn yet
+  PENDING   // it is this step's turn
+  APPROVED
+  REJECTED
+  CANCELLED // an earlier step rejected, or the request was withdrawn
+
+  @@schema("platform")
+}
+
+enum ApproverRule {
+  MANAGER
+  ROLE
+  PERSON
+
+  @@schema("platform")
+}
+
+model ApprovalRequest {
+  id               String         @id @default(uuid())
+  tenantId         String
+  module           String         // the module that asked, e.g. "time"
+  type             String         // e.g. "leave", "missed_punch", "offer"
+  requesterId      String         // plain id, checked in code
+  subjectEntity    String         // what the request is about, e.g. "LeaveRequest"
+  subjectId        String
+  summary          String
+  status           ApprovalStatus @default(PENDING)
+  decidedAt        DateTime?
+  eventPublishedAt DateTime?      // set once approval.decided has been sent
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  tenant Tenant         @relation(fields: [tenantId], references: [id])
+  steps  ApprovalStep[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, requesterId])
+  @@index([tenantId, module, subjectEntity, subjectId])
+  @@schema("platform")
+}
+
+model ApprovalStep {
+  id             String             @id @default(uuid())
+  tenantId       String
+  requestId      String
+  position       Int                // 0 = first step
+  rule           ApproverRule
+  approverRole   Role?              // who may decide when no single person is assigned
+  approverUserId String?            // the named person for the PERSON rule
+  assignedUserId String?            // the one person who must decide now, once resolved
+  status         ApprovalStepStatus @default(WAITING)
+  decidedById    String?
+  reason         String?
+  decidedAt      DateTime?
+  activatedAt    DateTime?          // when it became this step's turn (starts the fallback timer)
+  escalatedAt    DateTime?          // set when moved to the fallback approver
+  escalationNote String?
+  createdAt      DateTime           @default(now())
+
+  tenant  Tenant          @relation(fields: [tenantId], references: [id])
+  request ApprovalRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@unique([requestId, position])
+  @@index([status, activatedAt])
+  @@index([tenantId, assignedUserId, status])
+  @@schema("platform")
 }
