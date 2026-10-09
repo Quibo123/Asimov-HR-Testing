@@ -3,7 +3,10 @@ import { z } from "zod";
 import { parseOrThrow } from "../../platform/errors.js";
 import { ctxFrom } from "../../platform/ctx.js";
 import { copyTemplateSchema, createJobSchema, templateBodySchema } from "./schemas.js";
+import { applyBodySchema, uploadUrlSchema } from "./application-schemas.js";
 import * as svc from "./service.js";
+import { createUploadUrl } from "./uploads.js";
+import { submitApplication } from "./applications.js";
 
 const idParams = z.object({ id: z.string().uuid() });
 
@@ -68,9 +71,32 @@ export async function talentlyRoutes(app: FastifyInstance) {
     return svc.closeJob(ctxFrom(request), id);
   });
 
-  // ---------- Step 6: public portal route (no sign-in, no tenant, no permission) ----------
+  // ---------- Public portal (no sign-in, no tenant, no permission) ----------
   app.get("/portal/jobs/:id", async (request) => {
     const { id } = parseOrThrow(idParams, request.params);
     return svc.getPublicJob(id);
   });
+
+    // Short-lived signed URL so the browser can upload the resume straight to R2.
+  // Looser limit (20 per hour) so someone can't spam signed URLs.
+  app.post(
+    "/portal/jobs/:id/upload-url",
+    { config: { rateLimit: { max: 20, timeWindow: "1 hour" } } },
+    async (request) => {
+      const { id } = parseOrThrow(idParams, request.params);
+      const body = parseOrThrow(uploadUrlSchema, request.body);
+      return createUploadUrl(id, body);
+    },
+  );
+
+  // Submit the application. The ticket's limit: 5 per IP per hour, then a friendly 429.
+  app.post(
+    "/portal/jobs/:id/apply",
+    { config: { rateLimit: { max: 5, timeWindow: "1 hour" } } },
+    async (request, reply) => {
+      const { id } = parseOrThrow(idParams, request.params);
+      const body = parseOrThrow(applyBodySchema, request.body);
+      return reply.code(201).send(await submitApplication(id, body));
+    },
+  );
 }
