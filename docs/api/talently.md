@@ -132,3 +132,13 @@ Options are sent for single choice, multiple choice and yes/no only. Rating ques
   ]
 }
 ```
+
+## Scoring
+
+- Each job has `scoringMethod`: `form` (default), `ai` or `both`. `POST /talently/jobs` accepts it.
+  Only `form` is allowed while AI scoring is off for the tenant (400 otherwise).
+- After an application is submitted, it is scored in the background. The application `status`
+  changes from `RECEIVED` to `SCORED` (shown as "Scored, awaiting HR verification").
+- A failed must-have question is only flagged. No candidate is ever rejected automatically.
+- Short text answers score 0 and are flagged for HR to read.
+- There is no route to read scores yet. That comes in a later ticket.

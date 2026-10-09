@@ -139,4 +139,5 @@ export const createJobSchema = z.object({
   title: z.string().trim().min(1).max(200),
   location: z.string().trim().min(1).max(200),
   templateId: z.string().uuid(),
+  scoringMethod: z.enum(["form", "ai", "both"]).default("form"),
 });

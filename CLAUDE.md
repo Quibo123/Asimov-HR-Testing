@@ -37,3 +37,7 @@ Cross-cutting code lives in `apps/api/src/platform/`.
 6. **Run tests before done.**
    Run the test suite and confirm it passes before
    saying a task is finished.
+
+   11. **Scoring.** Scoring is done through the `Scorer` interface. A failed must-have is flagged, never a
+    rejection. The AI scorer must never run unless the tenant setting `scoring.aiEnabled` is on.
+    Scorer classes contain no database code, and every scoring rule has a unit test.

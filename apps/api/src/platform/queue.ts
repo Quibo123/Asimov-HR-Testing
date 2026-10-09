@@ -30,3 +30,14 @@ export async function enqueueScore(applicationId: string) {
     { retryLimit: 3, retryDelay: 30, retryBackoff: true },
   );
 }
+
+export async function registerScoreWorker(handler: (applicationId: string) => Promise<void>) {
+  if (!boss) throw new Error("The queue has not been started.");
+  await boss.work<{ applicationId: string }>(QUEUES.score, async (jobs) => {
+    // If the handler throws, pg-boss retries the job (retryLimit is set in enqueueScore).
+    for (const job of jobs) {
+      await handler(job.data.applicationId);
+    }
+  });
+}
+

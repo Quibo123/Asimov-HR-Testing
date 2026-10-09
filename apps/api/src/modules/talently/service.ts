@@ -5,6 +5,7 @@ import { audit } from "../../platform/audit.js";
 import { AppError } from "../../platform/errors.js";
 import type { Ctx } from "../../platform/ctx.js";
 import type { TemplateBody } from "./schemas.js";
+import { getBooleanSetting, SETTING_KEYS } from "../../platform/settings.js";
 
 const templateInclude = {
   questions: {
@@ -226,8 +227,24 @@ export async function getJob(tenantId: string, id: string) {
 
 export async function createJob(
   ctx: Ctx,
-  body: { title: string; location: string; templateId: string },
+  body: {
+    title: string;
+    location: string;
+    templateId: string;
+    scoringMethod: "form" | "ai" | "both";
+  },
 ) {
+  // Only "form" is allowed while AI scoring is off for this tenant.
+  if (body.scoringMethod !== "form") {
+    const aiEnabled = await getBooleanSetting(ctx.tenantId, SETTING_KEYS.aiEnabled, false);
+    if (!aiEnabled) {
+      throw new AppError(
+        400,
+        "AI scoring is not enabled for your account, so scoringMethod must be 'form'.",
+      );
+    }
+  }
+
   return prisma.$transaction(async (tx) => {
     const template = await tx.questionnaireTemplate.findFirst({
       where: { id: body.templateId, ...forTenant(ctx.tenantId) },
@@ -241,6 +258,7 @@ export async function createJob(
         title: body.title,
         location: body.location,
         templateId: template.id,
+        scoringMethod: body.scoringMethod,
         status: "DRAFT",
       },
     });

@@ -20,6 +20,8 @@ model Tenant {
   templates QuestionnaireTemplate[]
   jobs      Job[]
   applications Application[]
+  settings TenantSetting[]
+  scores   Score[]
   
   @@schema("platform")
 }
@@ -183,6 +185,7 @@ model Job {
   closedAt        DateTime?
   createdAt       DateTime  @default(now())
   applications Application[]
+  scoringMethod ScoringMethod @default(form)
 
   tenant   Tenant                @relation(fields: [tenantId], references: [id])
   template QuestionnaireTemplate @relation(fields: [templateId], references: [id])
@@ -214,6 +217,7 @@ model Application {
   tenant  Tenant   @relation(fields: [tenantId], references: [id])
   job     Job      @relation(fields: [jobId], references: [id])
   answers Answer[]
+  scores Score[]
 
   @@unique([jobId, email]) // the database itself prevents duplicates
   @@index([tenantId, status])
@@ -230,5 +234,47 @@ model Answer {
   question    Question    @relation(fields: [questionId], references: [id])
 
   @@unique([applicationId, questionId])
+  @@schema("talently")
+}
+
+enum ScoringMethod {
+  form
+  ai
+  both
+
+  @@schema("talently")
+}
+
+// Per-tenant switches. A missing row means "off".
+model TenantSetting {
+  id        String   @id @default(uuid())
+  tenantId  String
+  key       String   // e.g. "scoring.aiEnabled"
+  value     Json
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, key])
+  @@schema("platform")
+}
+
+model Score {
+  id              String   @id @default(uuid())
+  tenantId        String
+  applicationId   String
+  scorer          String   // "form" or "ai"
+  templateVersion Int
+  total           Float
+  breakdown       Json
+  mustHavesFailed Json
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant      Tenant      @relation(fields: [tenantId], references: [id])
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@unique([applicationId, scorer]) // one score per scorer; re-scoring replaces it
+  @@index([tenantId])
   @@schema("talently")
 }

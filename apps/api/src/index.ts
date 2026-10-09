@@ -4,7 +4,8 @@ import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import { registerAuthHook } from "./platform/auth.js";
 import { registerPermissionHook } from "./platform/permissions.js";
-import { startQueue, stopQueue } from "./platform/queue.js";
+import { startQueue, stopQueue, registerScoreWorker } from "./platform/queue.js";
+import { runScoring } from "./modules/talently/scoring/runScoring.js";
 import { talentlyRoutes } from "./modules/talently/routes.js";
 import { coreRoutes } from "./modules/core/routes.js";
 import { onboardRoutes } from "./modules/onboard/routes.js";
@@ -30,7 +31,6 @@ await app.register(cors, {
   maxAge: 86400,
 });
 
-// Limits are set per route (global: false). Keyed by the visitor's IP address.
 await app.register(rateLimit, {
   global: false,
   errorResponseBuilder: (_request, context) => ({
@@ -52,9 +52,11 @@ app.register(coreRoutes);
 app.register(onboardRoutes);
 app.register(timeRoutes);
 
-// Start the job queue. If it fails, the server still starts, but "apply" answers 503.
+// Start the job queue and the scoring worker.
+// If this fails, the server still starts, but "apply" answers 503.
 try {
   await startQueue();
+  await registerScoreWorker(runScoring);
   app.addHook("onClose", async () => {
     await stopQueue();
   });
