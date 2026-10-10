@@ -45,3 +45,8 @@ Cross-cutting code lives in `apps/api/src/platform/`.
     12. **Approvals.** Every approval goes through `createApprovalRequest` (platform/approvals). Modules never
     decide approvals themselves and never accept an approver chain from a client. They listen for
     `approval.decided` with a handler that is safe to run twice. Nobody approves their own request.
+
+    13. **Notifications.** Send them only with `notify()` and a template (`platform/notifications/templates.ts`).
+    Never pass free text, and never put salary, bank or ID details in any notification. Use a stable
+    `eventId` so the same event never sends twice. Catch and log `notify()` errors so they never break
+    the business action. Marking your own notifications read is not audited.

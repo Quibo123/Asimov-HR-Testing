@@ -9,10 +9,13 @@ import {
   stopQueue,
   registerScoreWorker,
   registerApprovalWorkers,
+  registerNotificationWorker,
 } from "./platform/queue.js";
 import { dispatchApprovalDecided } from "./platform/approvals/events.js";
 import { runApprovalSweep } from "./platform/approvals/service.js";
 import { approvalRoutes } from "./platform/approvals/routes.js";
+import { requeueStuckEmails, sendNotificationEmail } from "./platform/notifications/service.js";
+import { notificationRoutes } from "./platform/notifications/routes.js";
 import { runScoring } from "./modules/talently/scoring/runScoring.js";
 import { talentlyRoutes } from "./modules/talently/routes.js";
 import { coreRoutes } from "./modules/core/routes.js";
@@ -55,21 +58,27 @@ registerAuthHook(app);       // 1. who are you? (401 / 403)
 registerPermissionHook(app); // 2. what may you do? (403)
 
 app.get("/health", async () => ({ status: "ok" }));
+app.register(notificationRoutes);
 app.register(approvalRoutes);
 app.register(talentlyRoutes);
 app.register(coreRoutes);
 app.register(onboardRoutes);
 app.register(timeRoutes);
 
-// Start the job queue, the scoring worker and the approval workers.
-// If this fails, the server still starts, but "apply" answers 503.
+// Start the job queue and its workers.
+// If this fails, the server still starts, but "apply" answers 503 and emails wait.
 try {
   await startQueue();
   await registerScoreWorker(runScoring);
   await registerApprovalWorkers({
     onDecided: dispatchApprovalDecided,
-    onSweep: runApprovalSweep,
+    // The 10-minute sweep also re-queues notification emails that never got queued.
+    onSweep: async () => {
+      await runApprovalSweep();
+      await requeueStuckEmails();
+    },
   });
+  await registerNotificationWorker(sendNotificationEmail);
   app.addHook("onClose", async () => {
     await stopQueue();
   });

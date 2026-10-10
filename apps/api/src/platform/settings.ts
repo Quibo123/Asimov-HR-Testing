@@ -5,6 +5,9 @@ export const SETTING_KEYS = {
   aiEnabled: "scoring.aiEnabled",
   approvalFallbackHours: "approvals.fallbackHours",
   approvalFallbackUserId: "approvals.fallbackUserId",
+  brandLogoUrl: "brand.logoUrl",
+  brandColour: "brand.colour",
+  brandSenderName: "brand.senderName",
 } as const;
 
 async function getSettingValue(tenantId: string, key: string) {

@@ -6,6 +6,7 @@ export const QUEUES = {
   score: "talently.score",
   approvalDecided: "approval.decided",
   approvalSweep: "approval.sweep",
+  notificationEmail: "notification.email",
 } as const;
 
 let boss: PgBoss | null = null;
@@ -22,12 +23,15 @@ export async function startQueue() {
   await boss.createQueue(QUEUES.score);
   await boss.createQueue(QUEUES.approvalDecided);
   await boss.createQueue(QUEUES.approvalSweep);
+  await boss.createQueue(QUEUES.notificationEmail);
 }
 
 export async function stopQueue() {
   await boss?.stop();
   boss = null;
 }
+
+// ---------- Scoring ----------
 
 export async function enqueueScore(applicationId: string) {
   if (!boss) throw new AppError(503, "The processing queue is not running.");
@@ -75,6 +79,28 @@ export async function registerApprovalWorkers(opts: {
     await opts.onSweep();
   });
 
-  // The fallback timer: pg-boss scheduling runs the sweep every 10 minutes.
+  // pg-boss scheduling runs the sweep every 10 minutes.
   await boss.schedule(QUEUES.approvalSweep, "*/10 * * * *");
+}
+
+// ---------- Notification emails ----------
+
+export async function enqueueNotificationEmail(notificationId: string) {
+  if (!boss) throw new AppError(503, "The processing queue is not running.");
+  // Step 6: a failed send is retried by pg-boss, waiting longer each time (about 1, 2, 4, 8, 16 minutes).
+  await boss.send(
+    QUEUES.notificationEmail,
+    { notificationId },
+    { retryLimit: 5, retryDelay: 60, retryBackoff: true },
+  );
+}
+
+export async function registerNotificationWorker(handler: (notificationId: string) => Promise<void>) {
+  if (!boss) throw new Error("The queue has not been started.");
+  await boss.work<{ notificationId: string }>(QUEUES.notificationEmail, async (jobs) => {
+    // If the handler throws, pg-boss retries the job.
+    for (const job of jobs) {
+      await handler(job.data.notificationId);
+    }
+  });
 }

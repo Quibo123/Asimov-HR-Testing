@@ -24,6 +24,7 @@ model Tenant {
   scores   Score[]
   approvalRequests ApprovalRequest[]
   approvalSteps    ApprovalStep[]
+   notifications Notification[]
   
   @@schema("platform")
 }
@@ -357,5 +358,39 @@ model ApprovalStep {
   @@unique([requestId, position])
   @@index([status, activatedAt])
   @@index([tenantId, assignedUserId, status])
+  @@schema("platform")
+}
+
+enum EmailStatus {
+  PENDING // saved, email not sent yet
+  SENT
+  FAILED  // the last attempt failed; pg-boss retries until the retry limit
+  SKIPPED // nothing to send (for example the recipient no longer exists)
+
+  @@schema("platform")
+}
+
+model Notification {
+  id                String      @id @default(uuid())
+  tenantId          String
+  userId            String      // the recipient (plain id, checked in code)
+  eventId           String      // which event this is about (dedupe key)
+  type              String      // e.g. "approval.decided"
+  title             String
+  body              String
+  link              String      // app path, e.g. "/approvals/123"
+  readAt            DateTime?
+  emailStatus       EmailStatus @default(PENDING)
+  emailAttempts     Int         @default(0)
+  emailLastError    String?
+  emailSentAt       DateTime?
+  providerMessageId String?     // Resend's id for the email
+  createdAt         DateTime    @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, userId, eventId]) // the same event never notifies the same person twice
+  @@index([tenantId, userId, readAt, createdAt])
+  @@index([emailStatus, createdAt])
   @@schema("platform")
 }
