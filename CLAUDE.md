@@ -50,3 +50,8 @@ Cross-cutting code lives in `apps/api/src/platform/`.
     Never pass free text, and never put salary, bank or ID details in any notification. Use a stable
     `eventId` so the same event never sends twice. Catch and log `notify()` errors so they never break
     the business action. Marking your own notifications read is not audited.
+
+    14. **Imports.** Import scripts must be safe to run twice (skip existing rows before doing any upload),
+    list every failure with its reason, support `--dry-run`, and never send an email unless a flag says so.
+    Imported candidates have `source = import` and no `consentAt` until they complete the questionnaire.
+    CSVs, resumes and import reports are personal data: never commit them.

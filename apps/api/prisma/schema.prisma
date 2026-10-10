@@ -201,6 +201,7 @@ model Job {
 enum ApplicationStatus {
   RECEIVED
   SCORED
+  IMPORTED
 
   @@schema("talently")
 }
@@ -213,10 +214,13 @@ model Application {
   email         String            // always stored lowercase
   phone         String
   resumeKey     String?           // copy of the FILE answer, for quick access
-  consentAt     DateTime          // when the candidate agreed (server time, UTC)
   status        ApplicationStatus @default(RECEIVED)
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
+  consentAt  DateTime?   // was required. Imported applications have no portal consent yet.
+  source     ApplicationSource @default(portal)
+  importedAt DateTime?
+  invitedAt  DateTime?   // when the questionnaire invite email was sent
 
   tenant  Tenant   @relation(fields: [tenantId], references: [id])
   job     Job      @relation(fields: [jobId], references: [id])
@@ -393,4 +397,12 @@ model Notification {
   @@index([tenantId, userId, readAt, createdAt])
   @@index([emailStatus, createdAt])
   @@schema("platform")
+}
+
+
+enum ApplicationSource {
+  portal
+  import
+
+  @@schema("talently")
 }

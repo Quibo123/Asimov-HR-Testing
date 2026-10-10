@@ -50,9 +50,18 @@ export function buildAppLink(baseUrl: string, tenantId: string, path: string): s
   return url.toString();
 }
 
-export function renderEmail(input: { brand: Brand; title: string; body: string; url: string }) {
+export function renderEmail(input: {
+  brand: Brand;
+  title: string;
+  body: string;
+  url: string;
+  buttonLabel?: string; // default: "Open in <tenant>"
+  footer?: string; // default: the "you are a member" line
+}) {
   const { brand, title, body, url } = input;
   const name = escapeHtml(brand.tenantName);
+  const buttonLabel = input.buttonLabel ?? `Open in ${brand.tenantName}`;
+  const footer = input.footer ?? `You are receiving this because you are a member of ${brand.tenantName}.`;
 
   const header = brand.logoUrl
     ? `<img src="${escapeHtml(brand.logoUrl)}" alt="${name}" height="40" style="display:block;border:0;height:40px;">`
@@ -69,16 +78,16 @@ export function renderEmail(input: { brand: Brand; title: string; body: string; 
 <tr><td style="padding:28px;">
 <h1 style="margin:0 0 12px;font-size:20px;line-height:1.3;">${escapeHtml(title)}</h1>
 <p style="margin:0 0 24px;font-size:15px;line-height:1.5;">${escapeHtml(body)}</p>
-<a href="${escapeHtml(url)}" style="display:inline-block;background:${brand.colour};color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:6px;font-weight:bold;font-size:15px;">Open in ${name}</a>
+<a href="${escapeHtml(url)}" style="display:inline-block;background:${brand.colour};color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:6px;font-weight:bold;font-size:15px;">${escapeHtml(buttonLabel)}</a>
 </td></tr>
-<tr><td style="padding:16px 28px;font-size:12px;color:#6b7280;">You are receiving this because you are a member of ${name}.</td></tr>
+<tr><td style="padding:16px 28px;font-size:12px;color:#6b7280;">${escapeHtml(footer)}</td></tr>
 </table>
 </td></tr>
 </table>
 </body>
 </html>`;
 
-  const text = `${title}\n\n${body}\n\nOpen: ${url}\n\nYou are receiving this because you are a member of ${brand.tenantName}.`;
+  const text = `${title}\n\n${body}\n\n${buttonLabel}: ${url}\n\n${footer}`;
 
   return { subject: title, html, text };
 }
