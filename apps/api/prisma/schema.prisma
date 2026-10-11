@@ -24,7 +24,13 @@ model Tenant {
   scores   Score[]
   approvalRequests ApprovalRequest[]
   approvalSteps    ApprovalStep[]
-   notifications Notification[]
+  notifications Notification[]
+  locations          Location[]
+  departments        Department[]
+  designations       Designation[]
+  employees          Employee[]
+  employeeSensitives EmployeeSensitive[]
+  employeeEvents     EmployeeEvent[]
   
   @@schema("platform")
 }
@@ -405,4 +411,133 @@ enum ApplicationSource {
   import
 
   @@schema("talently")
+}
+
+enum EmployeeStatus {
+  ONBOARDING
+  ACTIVE
+  NOTICE
+  LEFT
+
+  @@schema("core")
+}
+
+model Location {
+  id          String   @id @default(uuid())
+  tenantId    String
+  name        String
+  country     String   // 2-letter code, like "IN" or "AE"
+  timeZone    String   // IANA zone, like "Asia/Kolkata"
+  weekendDays Int[]    // 1 = Monday ... 7 = Sunday
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id])
+  employees Employee[]
+
+  @@unique([tenantId, name])
+  @@schema("core")
+}
+
+model Department {
+  id        String   @id @default(uuid())
+  tenantId  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id])
+  employees Employee[]
+
+  @@unique([tenantId, name])
+  @@schema("core")
+}
+
+model Designation {
+  id        String   @id @default(uuid())
+  tenantId  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id])
+  employees Employee[]
+
+  @@unique([tenantId, name])
+  @@schema("core")
+}
+
+model Employee {
+  id            String         @id @default(uuid())
+  tenantId      String
+  code          String
+  name          String
+  email         String
+  phone         String?
+  userId        String?        // the sign-in account of this person (plain id, checked in code)
+  locationId    String
+  departmentId  String?
+  designationId String?
+  managerId     String?
+  joiningDate   DateTime       @db.Date
+  status        EmployeeStatus @default(ONBOARDING)
+  customFields  Json           @default("{}")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  tenant      Tenant             @relation(fields: [tenantId], references: [id])
+  location    Location           @relation(fields: [locationId], references: [id])
+  department  Department?        @relation(fields: [departmentId], references: [id])
+  designation Designation?       @relation(fields: [designationId], references: [id])
+  manager     Employee?          @relation("EmployeeManager", fields: [managerId], references: [id])
+  reports     Employee[]         @relation("EmployeeManager")
+  sensitive   EmployeeSensitive?
+
+  @@unique([tenantId, code])
+  @@unique([tenantId, email])
+  @@unique([tenantId, userId])
+  @@index([tenantId, status])
+  @@index([tenantId, managerId])
+  @@index([tenantId, locationId])
+  @@schema("core")
+}
+
+// Bank and ID details live here, apart from the main record. Only HR can read them.
+model EmployeeSensitive {
+  id                 String   @id @default(uuid())
+  tenantId           String
+  employeeId         String   @unique
+  bankAccountHolder  String?
+  bankAccountNumber  String?
+  bankCode           String?  // IFSC, SWIFT or sort code
+  governmentIdType   String?
+  governmentIdNumber String?
+  taxIdNumber        String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@schema("core")
+}
+
+// Saved in the same transaction as the employee, delivered afterwards by a worker.
+model EmployeeEvent {
+  id          String    @id @default(uuid())
+  tenantId    String
+  employeeId  String
+  type        String    // "employee.created" or "employee.updated"
+  dedupeKey   String    // "created", or "updated:<time>"
+  data        Json
+  createdAt   DateTime  @default(now())
+  publishedAt DateTime? // set once the event has been delivered
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([employeeId, dedupeKey]) // an employee can have only one "created" event
+  @@index([publishedAt, createdAt])
+  @@index([tenantId])
+  @@schema("core")
 }

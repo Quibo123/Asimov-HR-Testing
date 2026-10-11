@@ -12,6 +12,8 @@ import { talentlyRoutes } from "./modules/talently/routes.js";
 import { coreRoutes } from "./modules/core/routes.js";
 import { onboardRoutes } from "./modules/onboard/routes.js";
 import { timeRoutes } from "./modules/time/routes.js";
+import { peopleRoutes } from "./modules/core/people/routes.js";
+
 
 export type RouteInfo = { method: string; url: string; requires: string | undefined };
 
@@ -105,8 +107,10 @@ export async function buildApp(opts: { routeLog?: RouteInfo[]; logger?: boolean 
   app.register(approvalRoutes);
   app.register(talentlyRoutes);
   app.register(coreRoutes);
+  app.register(peopleRoutes);
   app.register(onboardRoutes);
   app.register(timeRoutes);
+  
 
   return app;
 }

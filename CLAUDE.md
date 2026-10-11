@@ -55,3 +55,8 @@ Cross-cutting code lives in `apps/api/src/platform/`.
     list every failure with its reason, support `--dry-run`, and never send an email unless a flag says so.
     Imported candidates have `source = import` and no `consentAt` until they complete the questionnaire.
     CSVs, resumes and import reports are personal data: never commit them.
+
+    17. **People data.** Bank and ID numbers live only in `EmployeeSensitive`. They are readable only with
+    `core.employees.sensitive`, every read is audited in the same transaction, and the audit log holds field
+    names, never values. Never put them in custom fields, events, logs, notifications or API responses
+    outside the sensitive routes. Employees are never deleted: set `status` to `LEFT`.

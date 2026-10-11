@@ -12,6 +12,8 @@ export const PERMISSIONS = [
   "core.members.view",
   "core.members.manage",
   "audit.view",
+  "core.employees.manage",    // new: HR, full control of employees and the organisation
+  "core.employees.sensitive", // new: HR, read and change bank and ID details
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];

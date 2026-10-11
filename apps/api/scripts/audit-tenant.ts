@@ -30,6 +30,9 @@ const ALLOWED: Allowed[] = [
   { file: "platform/approvals/service.ts", call: "approvalRequest.findUnique", contains: "where: { id: requestId }", reason: "system job publishing a saved decision" },
   { file: "platform/notifications/service.ts", call: "notification.findUnique", contains: "where: { id: notificationId }", reason: "email worker: the row tells which tenant it belongs to" },
   { file: "platform/notifications/service.ts", call: "notification.findMany", contains: 'emailStatus: "PENDING"', reason: "sweep across tenants (system job)" },
+  { file: "modules/core/people/service.ts", call: "employeeEvent.findUnique", contains: "where: { id: eventId }", reason: "event worker: the row tells which tenant it belongs to" },
+  { file: "modules/core/people/service.ts", call: "employeeEvent.findMany", contains: "publishedAt: null", reason: "sweep across tenants (system job)" },
+
 ];
 
 const CALL = /\b(prisma|tx|db)\.(\w+)\.(findFirst|findFirstOrThrow|findUnique|findUniqueOrThrow|findMany|count|aggregate|groupBy|create|createMany|update|updateMany|upsert|delete|deleteMany)\s*\(/g;

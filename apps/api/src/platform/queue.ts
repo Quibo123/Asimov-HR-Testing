@@ -7,6 +7,7 @@ export const QUEUES = {
   approvalDecided: "approval.decided",
   approvalSweep: "approval.sweep",
   notificationEmail: "notification.email",
+  employeeEvent: "employee.event",
 } as const;
 
 let boss: PgBoss | null = null;
@@ -24,6 +25,7 @@ export async function startQueue() {
   await boss.createQueue(QUEUES.approvalDecided);
   await boss.createQueue(QUEUES.approvalSweep);
   await boss.createQueue(QUEUES.notificationEmail);
+  await boss.createQueue(QUEUES.employeeEvent);
 }
 
 export async function stopQueue() {
@@ -87,7 +89,7 @@ export async function registerApprovalWorkers(opts: {
 
 export async function enqueueNotificationEmail(notificationId: string) {
   if (!boss) throw new AppError(503, "The processing queue is not running.");
-  // Step 6: a failed send is retried by pg-boss, waiting longer each time (about 1, 2, 4, 8, 16 minutes).
+  // A failed send is retried by pg-boss, waiting longer each time (about 1, 2, 4, 8, 16 minutes).
   await boss.send(
     QUEUES.notificationEmail,
     { notificationId },
@@ -98,9 +100,29 @@ export async function enqueueNotificationEmail(notificationId: string) {
 export async function registerNotificationWorker(handler: (notificationId: string) => Promise<void>) {
   if (!boss) throw new Error("The queue has not been started.");
   await boss.work<{ notificationId: string }>(QUEUES.notificationEmail, async (jobs) => {
-    // If the handler throws, pg-boss retries the job.
+    
     for (const job of jobs) {
       await handler(job.data.notificationId);
+    }
+  });
+}
+
+// ---------- Employee events ----------
+
+export async function enqueueEmployeeEvent(eventId: string) {
+  if (!boss) throw new AppError(503, "The processing queue is not running.");
+  await boss.send(
+    QUEUES.employeeEvent,
+    { eventId },
+    { retryLimit: 5, retryDelay: 30, retryBackoff: true },
+  );
+}
+
+export async function registerEmployeeEventWorker(handler: (eventId: string) => Promise<void>) {
+  if (!boss) throw new Error("The queue has not been started.");
+  await boss.work<{ eventId: string }>(QUEUES.employeeEvent, async (jobs) => {
+    for (const job of jobs) {
+      await handler(job.data.eventId);
     }
   });
 }
