@@ -23,7 +23,7 @@ const supabase = createClient(
 const tenantIdSchema = z.string().uuid();
 
 // Token illaama pogalaam: health + public portal routes
-const PUBLIC_EXACT = new Set(["/health"]);
+const PUBLIC_EXACT = new Set(["/health", "/health/ready"]);
 const PUBLIC_PREFIXES = ["/portal/"]; // unga real public portal path ku maathunga
 
 export function isPublic(path: string) {
