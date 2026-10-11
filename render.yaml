@@ -1,0 +1,65 @@
+# Render blueprint for Asimov: the API (web service) and the pg-boss worker.
+# Secrets are never written here: "sync: false" means Render asks for the value in its dashboard.
+services:
+  # ================= STAGING (deploys from the "staging" branch) =================
+  - type: web
+    name: asimov-api-staging
+    runtime: node
+    region: ohio
+    plan: starter
+    branch: staging
+    autoDeploy: true
+    buildCommand: npm ci --include=dev && npm run build -w api
+    preDeployCommand: npm run migrate:deploy -w api
+    startCommand: npm run start -w api
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "1"
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: R2_ACCOUNT_ID
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET
+        sync: false
+
+  - type: worker
+    name: asimov-worker-staging
+    runtime: node
+    region: ohio
+    plan: starter
+    branch: staging
+    autoDeploy: true
+    buildCommand: npm ci --include=dev && npm run build -w api
+    startCommand: npm run start:worker -w api
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_ADDRESS
+        sync: false
+      - key: APP_BASE_URL
+        sync: false
