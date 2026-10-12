@@ -1,4 +1,5 @@
 const http = require('http')
+const onboardMock = require('./onboard-mock.cjs')
 
 // ---- Switches (open these URLs in the browser) ----
 let role = 'owner'       // /__role/owner | admin | member | interviewer
@@ -6,7 +7,7 @@ let force401 = false     // /__401/on|off
 let failApply = false    // /__fail/on|off        the apply request is dropped
 let failDecide = false   // /__faildecide/on|off  approvals decisions fail (proves the rollback)
 let delayMs = 0          // /__delay/2000 (milliseconds) | /__delay/0   every call is slow, so skeletons show
-let failGet = false      // /__getfail/on|off     Talently, approvals, people and public GET calls fail
+let failGet = false      // /__getfail/on|off     Talently, approvals, people, onboard and public GET calls fail
 let empty = false        // /__empty/on|off       list endpoints return no items
 let linkTtl = 60         // /__linkttl/5          seconds a document link works (default 60)
 const events = []        // /__events             what the API "published"
@@ -222,19 +223,27 @@ const employees = Array.from({ length: 47 }, (_, i) => {
   }
 }).sort((a, b) => a.name.localeCompare(b.name) || a.code.localeCompare(b.code))
 
-// ---- Employee profile (AS-206) ----
-const MANAGERS = ['Meera K', 'Arun S', 'Divya R', 'Karthik V']
-const dateOnly = (y, m, d) => new Date(Date.UTC(y, m, d)).toISOString().slice(0, 10)
+// ---- Reporting lines (AS-209) ----
+// Ben Thomas (e2, AS-1002) is at the top. Everyone else reports to someone with a smaller number, so there are no loops.
 const numOf = e => Number(e.id.slice(1))
+const managerIdOf = n =>
+  n === 2 ? null : n === 1 ? 'e3' : n <= 6 ? 'e2' : n <= 20 ? 'e' + (3 + (n % 4)) : 'e' + (7 + (n % 14))
+const managerIds = new Map(employees.map(e => [e.id, managerIdOf(numOf(e))]))
+const joinDates = new Map() // set for imported people
+
+// ---- Employee profile (AS-206) ----
+const dateOnly = (y, m, d) => new Date(Date.UTC(y, m, d)).toISOString().slice(0, 10)
 
 const profileOf = e => {
   const n = numOf(e)
+  const mid = managerIds.get(e.id)
+  const manager = mid ? employees.find(x => x.id === mid) : null
   return {
     ...e,
     email: `${e.name.toLowerCase().replace(/\s+/g, '.')}.${n}@example.com`,
     phone: `+91 98${String(10000000 + n * 137).padStart(8, '0')}`,
-    manager: MANAGERS[n % MANAGERS.length],
-    joiningDate: dateOnly(2018 + (n % 7), (n * 5) % 12, 1 + ((n * 3) % 27)),
+    manager: manager ? manager.name : '-',
+    joiningDate: joinDates.get(e.id) ?? dateOnly(2018 + (n % 7), (n * 5) % 12, 1 + ((n * 3) % 27)),
     employmentType: n % 9 === 0 ? 'Contract' : 'Full-time',
     grade: 'G' + (3 + (n % 5)),
     exitDate: e.status === 'exited' ? '2026-09-30' : null,
@@ -273,6 +282,88 @@ const logAudit = (employeeId, action, detail = '', by = ME_EMAIL, at = new Date(
 logAudit('e2', 'document.uploaded', 'Offer letter.pdf', 'hr@example.com', iso(30 * day))
 logAudit('e2', 'document.uploaded', 'ID proof.pdf', 'hr@example.com', iso(29 * day))
 
+// ---- Employee import (AS-209) ----
+const IMPORT_COLUMNS = ['code', 'name', 'email', 'designation', 'department', 'location', 'manager_code', 'joining_date']
+
+// Reads CSV text into rows of cells. Handles quotes, commas and line breaks inside quotes.
+function parseCsv(input) {
+  const text = input.replace(/^\uFEFF/, '')
+  const rows = []
+  let row = []
+  let cell = ''
+  let inQuotes = false
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i]
+    if (inQuotes) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') { cell += '"'; i++ } else inQuotes = false
+      } else cell += ch
+    } else if (ch === '"') inQuotes = true
+    else if (ch === ',') { row.push(cell); cell = '' }
+    else if (ch === '\n' || ch === '\r') {
+      if (ch === '\r' && text[i + 1] === '\n') i++
+      row.push(cell); cell = ''; rows.push(row); row = []
+    } else cell += ch
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row) }
+  return rows.filter(r => r.some(c => c.trim() !== ''))
+}
+
+// Finds the uploaded file inside a multipart body
+function fileFromMultipart(raw) {
+  const m = /Content-Disposition:[^\r\n]*filename="([^"]*)"[^\r\n]*\r\n(?:[^\r\n]+\r\n)*\r\n([\s\S]*?)\r\n--/.exec(raw)
+  return m ? { name: m[1], text: m[2] } : null
+}
+
+// Checks every row and says which are ready. Saves nothing.
+function checkImport(text) {
+  const table = parseCsv(text)
+  if (table.length === 0) return { error: { error: 'empty file' } }
+
+  const header = table[0].map(h => h.trim().toLowerCase())
+  const missing = IMPORT_COLUMNS.filter(c => !header.includes(c))
+  if (missing.length) return { error: { error: 'missing_columns', columns: missing } }
+
+  // Columns are found by name, so extra columns (like "row" and "problems" in the error file) are ignored
+  const at = Object.fromEntries(IMPORT_COLUMNS.map(c => [c, header.indexOf(c)]))
+  const rows = table.slice(1).map((cells, i) => ({
+    row: i + 2,
+    values: Object.fromEntries(IMPORT_COLUMNS.map(c => [c, (cells[at[c]] ?? '').trim()])),
+  }))
+
+  const existing = new Set(employees.map(e => e.code.toLowerCase()))
+  const inFile = new Map()
+  rows.forEach(r => {
+    const c = r.values.code.toLowerCase()
+    if (c) inFile.set(c, (inFile.get(c) || 0) + 1)
+  })
+
+  const good = []
+  const bad = []
+  for (const r of rows) {
+    const v = r.values
+    const errors = []
+    const code = v.code.toLowerCase()
+    if (!v.code) errors.push('code_required')
+    else if (existing.has(code)) errors.push('code_exists')
+    else if (inFile.get(code) > 1) errors.push('code_duplicate')
+    if (!v.name) errors.push('name_required')
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email)) errors.push('email_invalid')
+    if (!DEPARTMENTS.includes(v.department)) errors.push('department_unknown')
+    if (!LOCATIONS.includes(v.location)) errors.push('location_unknown')
+    if (v.manager_code) {
+      const m = v.manager_code.toLowerCase()
+      if (!existing.has(m) && !inFile.has(m)) errors.push('manager_unknown')
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v.joining_date) || Number.isNaN(Date.parse(v.joining_date))) {
+      errors.push('date_invalid')
+    }
+    if (errors.length) bad.push({ ...r, errors })
+    else good.push(r)
+  }
+  return { rows, good, bad }
+}
+
 // A tiny valid PDF so the resume panel and documents have something to show
 function makePdf(text) {
   const safe = String(text).replace(/[()\\]/g, '')
@@ -305,7 +396,7 @@ function send(res, status, data) {
   res.end(data === undefined ? '' : JSON.stringify(data))
 }
 
-// JSON bodies are parsed. Multipart bodies (the apply form, document uploads) are kept as raw text.
+// JSON bodies are parsed. Multipart bodies (the apply form, uploads) are kept as raw text.
 function readBody(req) {
   return new Promise(resolve => {
     let raw = ''
@@ -344,13 +435,13 @@ http
     if (parts[0] === '__empty') { empty = parts[1] === 'on'; return send(res, 200, { empty }) }
     if (parts[0] === '__linkttl') { linkTtl = Number(parts[1]) || 60; return send(res, 200, { linkTtl }) }
 
-    // ---- AS-123 test switches: slow, failing and empty responses ----
+    // ---- Test switches: slow, failing and empty responses ----
     if (delayMs) await new Promise(r => setTimeout(r, delayMs))
-    if (failGet && req.method === 'GET' && ['talently', 'approvals', 'public', 'people'].includes(parts[0])) {
+    if (failGet && req.method === 'GET' && ['talently', 'approvals', 'public', 'people', 'onboard'].includes(parts[0])) {
       return send(res, 500, { error: 'simulated failure' })
     }
     if (empty && req.method === 'GET' &&
-        ['/talently/candidates', '/talently/templates', '/approvals', '/public/jobs'].includes(path)) {
+        ['/talently/candidates', '/talently/templates', '/approvals', '/public/jobs', '/people/org', '/onboard/templates'].includes(path)) {
       return send(res, 200, [])
     }
 
@@ -407,6 +498,11 @@ http
       return send(res, 200, { id: 'u1', email: ME_EMAIL, role })
     }
 
+    // ---- Onboarding templates (AS-212): HR only, handled in onboard-mock.cjs ----
+    if (parts[0] === 'onboard') {
+      if (onboardMock({ req, res, parts, body, canManage: canManage(), send, log: console.log })) return
+    }
+
     // ---- Employee directory (token, any role) ----
     if (req.method === 'GET' && path === '/people/directory') {
       const sp = new URL(req.url, 'http://localhost').searchParams
@@ -438,6 +534,63 @@ http
         pageSize,
         facets: { locations: LOCATIONS, departments: DEPARTMENTS },
       })
+    }
+
+    // ---- Org view (AS-209): any signed-in role ----
+    if (req.method === 'GET' && path === '/people/org') {
+      return send(res, 200, employees.map(e => ({
+        id: e.id, code: e.code, name: e.name, designation: e.designation, department: e.department,
+        status: e.status, managerId: managerIds.get(e.id) ?? null,
+      })))
+    }
+
+    // ---- Employee import (AS-209): HR only. Placed before the profile routes, so "import" is not read as an id ----
+    if (parts[0] === 'people' && parts[1] === 'import') {
+      if (!canManage()) return send(res, 403, { error: 'forbidden' })
+
+      if (req.method === 'POST' && (parts[2] === 'preview' || !parts[2])) {
+        const file = fileFromMultipart(body.__raw || '')
+        if (!file) return send(res, 422, { error: 'file required' })
+        if (!file.name.toLowerCase().endsWith('.csv')) return send(res, 422, { error: 'csv files only' })
+        if ((Number(req.headers['content-length']) || 0) > 5 * 1024 * 1024) return send(res, 413, { error: 'file too large' })
+
+        const result = checkImport(file.text)
+        if (result.error) return send(res, 422, result.error)
+
+        if (parts[2] === 'preview') {
+          return send(res, 200, {
+            total: result.rows.length,
+            ready: result.good.length,
+            invalid: result.bad.length,
+            badRows: result.bad,
+          })
+        }
+
+        // Save the ready rows. The file is checked again, in case the data changed since the preview.
+        let next = employees.reduce((m, e) => Math.max(m, numOf(e)), 0)
+        const added = result.good.map(r => {
+          const e = {
+            id: 'e' + ++next,
+            code: r.values.code,
+            name: r.values.name,
+            designation: r.values.designation,
+            department: r.values.department,
+            location: r.values.location,
+            status: 'active',
+          }
+          employees.push(e)
+          joinDates.set(e.id, r.values.joining_date)
+          return { e, managerCode: r.values.manager_code.toLowerCase() }
+        })
+        // Managers are looked up last, so a person can report to someone in the same file
+        for (const { e, managerCode } of added) {
+          const boss = managerCode ? employees.find(x => x.code.toLowerCase() === managerCode) : null
+          managerIds.set(e.id, boss ? boss.id : null)
+        }
+        employees.sort((a, b) => a.name.localeCompare(b.name) || a.code.localeCompare(b.code))
+        console.log(`  Imported ${added.length} employees, skipped ${result.bad.length}`)
+        return send(res, 200, { imported: added.length, skipped: result.bad.length })
+      }
     }
 
     // ---- Employee profile (AS-206): overview and job for any role, the rest for HR only ----
