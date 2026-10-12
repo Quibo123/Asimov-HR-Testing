@@ -19,6 +19,8 @@ import DirectoryPage from './people/DirectoryPage'
 import OrgPage from './people/OrgPage'
 import ImportPage from './people/ImportPage'
 import ProfilePage from './people/ProfilePage'
+import OnboardTemplatesList from './onboard/TemplatesList'
+import OnboardEditorPage from './onboard/TemplateEditorPage'
 
 const ModulePage = ({ ns }: { ns: string }) => {
   const { t } = useTranslation(ns)
@@ -58,7 +60,11 @@ export default function App() {
           </Route>
           <Route path="/people/:id" element={<ProfilePage />} />
 
-          <Route path="/onboard" element={<ModulePage ns="onboard" />} />
+          <Route path="/onboard" element={<Navigate to="/onboard/templates" replace />} />
+          <Route path="/onboard/templates" element={<OnboardTemplatesList />} />
+          <Route path="/onboard/templates/new" element={<OnboardEditorPage />} />
+          <Route path="/onboard/templates/:id" element={<OnboardEditorPage />} />
+
           <Route path="/time" element={<ModulePage ns="time" />} />
           <Route path="/settings" element={<Navigate to="/settings/users" replace />} />
           <Route path="/settings/users" element={<SettingsUsers />} />

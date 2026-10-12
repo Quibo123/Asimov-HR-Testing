@@ -14,12 +14,13 @@ export type Permission =
   | 'people.activity'
   | 'people.sensitive'
   | 'people.import'
+  | 'onboard.templates'
 
 const MANAGER: Permission[] = [
   'users.view', 'users.invite', 'users.changeRole', 'users.remove',
   'pipeline.move', 'pipeline.offer', 'notes.add', 'approvals.decide',
   'people.documents', 'people.documents.manage', 'people.activity', 'people.sensitive',
-  'people.import',
+  'people.import', 'onboard.templates',
 ]
 
 const PERMISSIONS: Record<Role, Permission[]> = {

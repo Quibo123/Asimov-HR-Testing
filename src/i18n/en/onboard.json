@@ -1,1 +1,75 @@
-{ "title": "Onboard" }
+{
+  "title": "Onboard",
+  "roles": {
+    "hr": "HR",
+    "manager": "Manager",
+    "it": "IT",
+    "finance": "Finance",
+    "employee": "New joiner"
+  },
+  "requirements": {
+    "document": "Needs a document",
+    "acknowledgement": "Needs an acknowledgement"
+  },
+  "due": {
+    "before_one": "{{count}} day before the joining date",
+    "before_other": "{{count}} days before the joining date",
+    "on": "On the joining date",
+    "after_one": "{{count}} day after the joining date",
+    "after_other": "{{count}} days after the joining date"
+  },
+  "list": {
+    "title": "Onboarding templates",
+    "new": "New template",
+    "empty": "No onboarding templates yet. Create your first one.",
+    "error": "Could not load the templates.",
+    "default": "Default",
+    "fallback": "Used when no other template matches",
+    "departments": "Department: {{list}}",
+    "locations": "Location: {{list}}",
+    "tasks_one": "{{count}} task",
+    "tasks_other": "{{count}} tasks",
+    "running_one": "{{count}} onboarding running",
+    "running_other": "{{count}} onboardings running",
+    "edit": "Edit"
+  },
+  "builder": {
+    "back": "All templates",
+    "newTitle": "New onboarding template",
+    "editTitle": "Edit onboarding template",
+    "loading": "Loading template...",
+    "error": "Could not load this template.",
+    "name": "Template name",
+    "default": "Default template",
+    "defaultNote": "Used when no other template matches. There is always exactly one default.",
+    "defaultLocked": "This is the default. To change it, make another template the default.",
+    "defaultReplaces": "Making this the default replaces {{name}}.",
+    "matchTitle": "Who gets this template",
+    "matchHelp": "Leave a list empty to match anyone. If you pick both a department and a location, the person must match both.",
+    "departments": "Departments",
+    "locations": "Locations",
+    "tasksTitle": "Tasks",
+    "noTasks": "No tasks yet. Add the first task.",
+    "task": "Task {{n}}",
+    "taskTitle": "Task title",
+    "ownerRole": "Owner",
+    "offset": "Due (days from joining date)",
+    "offsetHelp": "Use a minus for before the joining date, for example -7.",
+    "offsetInvalid": "Enter a whole number from {{min}} to {{max}}.",
+    "requirement": "This task needs",
+    "addTask": "Add task",
+    "removeTask": "Remove task",
+    "save": "Save template",
+    "saveError": "Could not save. Try again.",
+    "running_one": "{{count}} onboarding is running from this template. Your changes apply only to new onboardings. The running one is not changed.",
+    "running_other": "{{count}} onboardings are running from this template. Your changes apply only to new onboardings. The running ones are not changed.",
+    "confirmSave": "Save these changes? Running onboardings will not be changed."
+  },
+  "issues": {
+    "name": "Give the template a name.",
+    "noTasks": "Add at least one task.",
+    "taskTitle": "Task {{n}} needs a title.",
+    "taskOffset": "Task {{n}}: the due day must be a whole number from {{min}} to {{max}}.",
+    "match": "Pick at least one department or location, or make this the default template."
+  }
+}
