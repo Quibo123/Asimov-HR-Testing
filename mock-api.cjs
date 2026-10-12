@@ -1,5 +1,6 @@
 const http = require('http')
 const onboardMock = require('./onboard-mock.cjs')
+const joinerMock = require('./joiner-mock.cjs')
 
 // ---- Switches (open these URLs in the browser) ----
 let role = 'owner'       // /__role/owner | admin | member | interviewer
@@ -39,6 +40,7 @@ const jobs = [
       { id: 'q5', type: 'rating', label: 'Rate your TypeScript skills', required: true, max: 5 },
     ],
   },
+  
   {
     id: 'j2', title: 'Product Designer', location: 'Remote', type: 'Contract', status: 'closed',
     description: 'Closed role.', questions: [],
@@ -389,6 +391,7 @@ const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Tenant-ID',
 }
 
 function send(res, status, data) {
@@ -437,7 +440,7 @@ http
 
     // ---- Test switches: slow, failing and empty responses ----
     if (delayMs) await new Promise(r => setTimeout(r, delayMs))
-    if (failGet && req.method === 'GET' && ['talently', 'approvals', 'public', 'people', 'onboard'].includes(parts[0])) {
+        if (failGet && req.method === 'GET' && ['talently', 'approvals', 'public', 'people', 'onboard', 'joiner'].includes(parts[0])) {
       return send(res, 500, { error: 'simulated failure' })
     }
     if (empty && req.method === 'GET' &&
@@ -460,6 +463,15 @@ http
       }
       res.writeHead(200, { 'Content-Type': 'application/pdf', ...cors })
       return res.end(makePdf(link.name))
+    }
+
+        // ---- Joiner portal (public) and HR progress board (AS-215) ----
+    if (parts[0] === 'joiner' || parts[0] === '__joinfail' || path === '/onboard/board') {
+      if (joinerMock({
+        req, res, parts, path, body,
+        hasToken: Boolean(req.headers.authorization) && !force401,
+        canManage: canManage(), empty, send, log: console.log,
+      })) return
     }
 
     // ---- Careers (public, no token) ----
