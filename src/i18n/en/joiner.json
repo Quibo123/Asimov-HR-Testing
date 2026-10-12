@@ -1,0 +1,48 @@
+{
+  "layoutTitle": "Joining",
+  "logoAlt": "Company logo",
+  "invalid": "This link is not valid or has expired. Ask HR to send you a new one.",
+  "error": "Could not load your steps.",
+  "welcome": {
+    "title": "Welcome, {{name}}",
+    "joining": "You join on {{date}}",
+    "steps_one": "{{count}} step, about {{minutes}} minutes",
+    "steps_other": "{{count}} steps, about {{minutes}} minutes",
+    "progress": "{{done}} of {{total}} steps already done",
+    "start": "Start",
+    "continue": "Continue",
+    "note": "Your answers are saved after every step. You can stop and come back with the same link."
+  },
+  "step": {
+    "of": "Step {{n}} of {{total}}",
+    "progress": "Your progress",
+    "due": "Please finish by {{date}}",
+    "noteLabel": "Anything HR should know? (optional)",
+    "ackButton": "I have read this and agree",
+    "takePhoto": "Take a photo",
+    "chooseFile": "Choose a file",
+    "docHint": "A photo or a PDF, up to 10 MB. Photos are made smaller for you.",
+    "preparing": "Getting your photo ready...",
+    "ready": "Ready to send: {{name}} ({{size}})",
+    "send": "Send",
+    "sending": "Sending...",
+    "uploading": "Sending... {{n}}%",
+    "notSent": "Not sent — tap to retry",
+    "kept": "Nothing is lost. What you typed and your photo are still here.",
+    "fileErrors": {
+      "type": "Choose a photo or a PDF.",
+      "size": "The file must be 10 MB or smaller."
+    }
+  },
+  "saved": {
+    "title": "Saved",
+    "done": "{{title}} is done.",
+    "next": "Next step",
+    "finish": "Finish"
+  },
+  "finished": {
+    "title": "All done",
+    "text": "Thank you, {{name}}. HR can see that all your steps are complete.",
+    "joining": "See you on {{date}}."
+  }
+}

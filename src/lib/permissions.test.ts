@@ -29,11 +29,29 @@ describe('can', () => {
       expect(can(undefined, p)).toBe(false)
     }
   })
+
+    it('lets only HR import employees', () => {
+    expect(can('owner', 'people.import')).toBe(true)
+    expect(can('admin', 'people.import')).toBe(true)
+    expect(can('member', 'people.import')).toBe(false)
+    expect(can('interviewer', 'people.import')).toBe(false)
+    expect(can(undefined, 'people.import')).toBe(false)
+  })
+  
     it('lets only HR build onboarding templates', () => {
     expect(can('owner', 'onboard.templates')).toBe(true)
     expect(can('admin', 'onboard.templates')).toBe(true)
     expect(can('member', 'onboard.templates')).toBe(false)
     expect(can('interviewer', 'onboard.templates')).toBe(false)
+  })
+
+  
+
+    it('lets only HR see the onboarding board', () => {
+    expect(can('owner', 'onboard.board')).toBe(true)
+    expect(can('admin', 'onboard.board')).toBe(true)
+    expect(can('member', 'onboard.board')).toBe(false)
+    expect(can('interviewer', 'onboard.board')).toBe(false)
   })
 
 })

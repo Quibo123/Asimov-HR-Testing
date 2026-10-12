@@ -1,5 +1,10 @@
 {
   "title": "Onboard",
+  "nav": {
+    "label": "Onboard sections",
+    "templates": "Templates",
+    "board": "Progress board"
+  },
   "roles": {
     "hr": "HR",
     "manager": "Manager",
@@ -71,5 +76,36 @@
     "taskTitle": "Task {{n}} needs a title.",
     "taskOffset": "Task {{n}}: the due day must be a whole number from {{min}} to {{max}}.",
     "match": "Pick at least one department or location, or make this the default template."
+  },
+  "board": {
+    "title": "Joiner progress",
+    "intro": "Everyone who is joining, by joining date, with their progress and the tasks holding them up.",
+    "error": "Could not load the joiners.",
+    "empty": "No joiners right now.",
+    "noMatch": "No joiners match these filters.",
+    "summary_one": "{{count}} joiner, {{blocked}} blocked",
+    "summary_other": "{{count}} joiners, {{blocked}} blocked",
+    "blockedOnly": "Only joiners with blockers",
+    "owner": "Waiting on",
+    "anyOwner": "Anyone",
+    "clear": "Clear filters",
+    "joinsToday": "Joins today",
+    "joinsIn_one": "Joins in {{count}} day",
+    "joinsIn_other": "Joins in {{count}} days",
+    "joinedAgo_one": "Joined {{count}} day ago",
+    "joinedAgo_other": "Joined {{count}} days ago",
+    "joiningOn": "Joining {{date}}",
+    "meta": "{{department}} · {{location}}",
+    "template": "Template: {{name}}",
+    "progress": "{{done}} of {{total}} tasks done",
+    "progressLabel": "Progress for {{name}}",
+    "blocked": "Blocked",
+    "complete": "All done",
+    "noBlockers": "No blockers",
+    "blockersTitle": "Blocking tasks",
+    "waitingOn": "Waiting on {{role}}",
+    "overdue_one": "Overdue by {{count}} day",
+    "overdue_other": "Overdue by {{count}} days",
+    "dueToday": "Due today"
   }
 }

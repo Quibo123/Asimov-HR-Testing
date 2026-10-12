@@ -19,8 +19,12 @@ import DirectoryPage from './people/DirectoryPage'
 import OrgPage from './people/OrgPage'
 import ImportPage from './people/ImportPage'
 import ProfilePage from './people/ProfilePage'
+import OnboardLayout from './onboard/OnboardLayout'
 import OnboardTemplatesList from './onboard/TemplatesList'
 import OnboardEditorPage from './onboard/TemplateEditorPage'
+import BoardPage from './onboard/BoardPage'
+import JoinLayout from './joiner/JoinLayout'
+import JoinPage from './joiner/JoinPage'
 
 const ModulePage = ({ ns }: { ns: string }) => {
   const { t } = useTranslation(ns)
@@ -37,6 +41,9 @@ export default function App() {
         <Route path="/careers" element={<CareersList />} />
         <Route path="/careers/:jobId" element={<JobPage />} />
         <Route path="/careers/:jobId/success" element={<ApplySuccess />} />
+      </Route>
+      <Route element={<JoinLayout />}>
+        <Route path="/join/:token" element={<JoinPage />} />
       </Route>
 
       {/* Signed-in app */}
@@ -60,10 +67,13 @@ export default function App() {
           </Route>
           <Route path="/people/:id" element={<ProfilePage />} />
 
-          <Route path="/onboard" element={<Navigate to="/onboard/templates" replace />} />
-          <Route path="/onboard/templates" element={<OnboardTemplatesList />} />
-          <Route path="/onboard/templates/new" element={<OnboardEditorPage />} />
-          <Route path="/onboard/templates/:id" element={<OnboardEditorPage />} />
+          <Route path="/onboard" element={<OnboardLayout />}>
+            <Route index element={<Navigate to="/onboard/templates" replace />} />
+            <Route path="templates" element={<OnboardTemplatesList />} />
+            <Route path="templates/new" element={<OnboardEditorPage />} />
+            <Route path="templates/:id" element={<OnboardEditorPage />} />
+            <Route path="board" element={<BoardPage />} />
+          </Route>
 
           <Route path="/time" element={<ModulePage ns="time" />} />
           <Route path="/settings" element={<Navigate to="/settings/users" replace />} />

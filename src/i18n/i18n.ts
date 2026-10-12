@@ -11,15 +11,16 @@ import careers from './en/careers.json'
 import templates from './en/templates.json'
 import ats from './en/ats.json'
 import approvals from './en/approvals.json'
+import joiner from './en/joiner.json'
 import auth from './en/auth.json'
 
 i18n.use(initReactI18next).init({
   lng: 'en',
   fallbackLng: 'en',
-  ns: ['common', 'talently', 'people', 'onboard', 'time', 'settings', 'auth', 'careers', 'templates', 'ats', 'approvals'],
+  ns: ['common', 'talently', 'people', 'onboard', 'time', 'settings', 'auth', 'careers', 'templates', 'ats', 'approvals', 'joiner'],
   defaultNS: 'common',
   resources: {
-  en: { common, talently, people, onboard, time, settings, auth, careers, templates, ats, approvals },
+  en: { common, talently, people, onboard, time, settings, auth, careers, templates, ats, approvals, joiner },
 },
   interpolation: { escapeValue: false },
 })
