@@ -3,6 +3,10 @@
   "logoAlt": "Company logo",
   "invalid": "This link is not valid or has expired. Ask HR to send you a new one.",
   "error": "Could not load your steps.",
+  "empty": {
+    "title": "Nothing to do yet",
+    "text": "Hi {{name}}, you have no steps to complete right now. HR will get in touch if that changes."
+  },
   "welcome": {
     "title": "Welcome, {{name}}",
     "joining": "You join on {{date}}",
@@ -29,6 +33,8 @@
     "uploading": "Sending... {{n}}%",
     "notSent": "Not sent — tap to retry",
     "kept": "Nothing is lost. What you typed and your photo are still here.",
+    "gone": "This link has expired. Ask HR to send you a new one. Nothing you did before is lost.",
+    "rejected": "We could not accept this. Try a different file, or tell HR.",
     "fileErrors": {
       "type": "Choose a photo or a PDF.",
       "size": "The file must be 10 MB or smaller."

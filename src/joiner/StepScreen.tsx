@@ -5,8 +5,9 @@ import { dayLabel } from '../lib/dayLabel'
 import { formatBytes } from '../people/profileLogic'
 import { compressImage } from './compress'
 import { readNote, writeNote } from './drafts'
-import { fileSizeProblem, fileTypeProblem, type FileProblem } from './logic'
+import { classifyFailure, fileSizeProblem, fileTypeProblem, type FileProblem } from './logic'
 import { useAcknowledge, useUploadDocument } from './queries'
+import { useScreenFocus } from './useScreenFocus'
 import type { JoinerTask, JoinerView } from './types'
 
 type Props = {
@@ -19,10 +20,13 @@ type Props = {
 
 const big = 'min-h-14 w-full text-lg'
 const pick =
-  'inline-flex min-h-14 w-full cursor-pointer items-center justify-center rounded-xl border-2 px-4 text-lg font-medium peer-focus-visible:outline-4'
+  'inline-flex min-h-14 w-full cursor-pointer items-center justify-center rounded-xl border-2 px-4 text-lg font-medium active:bg-black/5 dark:active:bg-white/10 peer-focus-visible:outline-4'
+const errorText = 'text-red-700 dark:text-red-400'
+const track = 'overflow-hidden rounded bg-black/10 dark:bg-white/20'
 
 export default function StepScreen({ token, task, index, total, onSaved }: Props) {
   const { t } = useTranslation('joiner')
+  const h1 = useScreenFocus<HTMLHeadingElement>(task.title)
   // What was typed is read back, so a reload does not lose it
   const [note, setNote] = useState(() => readNote(token, task.id))
   const [file, setFile] = useState<File | null>(null)
@@ -36,6 +40,9 @@ export default function StepScreen({ token, task, index, total, onSaved }: Props
   const isDoc = task.requirement === 'document'
   const busy = ack.isPending || upload.isPending
   const failed = ack.isError || upload.isError
+  const failure = failed ? classifyFailure(upload.error ?? ack.error) : null
+  // Only a dropped connection or a server hiccup is worth retrying as it is
+  const retryable = failure === 'network' || failure === 'server'
 
   function changeNote(value: string) {
     setNote(value)
@@ -69,6 +76,7 @@ export default function StepScreen({ token, task, index, total, onSaved }: Props
   }
 
   async function send() {
+    if (busy) return // a second tap must not send twice
     if (isDoc && !file) return
     setProgress(0)
     try {
@@ -76,8 +84,10 @@ export default function StepScreen({ token, task, index, total, onSaved }: Props
       const view = isDoc && file ? await upload.mutateAsync({ ...body, file }) : await ack.mutateAsync(body)
       writeNote(token, task.id, '')
       onSaved(task.title, view)
-    } catch {
-      // The button below turns into "Not sent — tap to retry". Nothing typed or chosen is cleared.
+    } catch (err) {
+      // A refused file is not sent again as it is. The joiner picks another one.
+      // For a dropped connection nothing typed or chosen is cleared.
+      if (classifyFailure(err) === 'rejected' && isDoc) setFile(null)
     }
   }
 
@@ -85,7 +95,7 @@ export default function StepScreen({ token, task, index, total, onSaved }: Props
     ? isDoc
       ? t('step.uploading', { n: progress })
       : t('step.sending')
-    : failed
+    : retryable
       ? t('step.notSent')
       : isDoc
         ? t('step.send')
@@ -103,13 +113,13 @@ export default function StepScreen({ token, task, index, total, onSaved }: Props
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={percent}
-          className="h-2 w-full overflow-hidden rounded bg-black/10"
+          className={`h-2 w-full ${track}`}
         >
           <div className="h-full bg-(--brand)" style={{ width: `${percent}%` }} />
         </div>
       </div>
 
-      <h1 className="text-2xl font-semibold wrap-break-word">{task.title}</h1>
+      <h1 ref={h1} tabIndex={-1} className="text-2xl font-semibold wrap-break-word outline-none">{task.title}</h1>
       {task.description && <p className="whitespace-pre-line wrap-break-word">{task.description}</p>}
       <p className="text-base opacity-80">{t('step.due', { date: dayLabel(task.dueDate) })}</p>
 
@@ -147,7 +157,7 @@ export default function StepScreen({ token, task, index, total, onSaved }: Props
               {t('step.ready', { name: file.name, size: formatBytes(file.size) })}
             </p>
           )}
-          {problem && <p role="alert" className="text-red-600">{t(`step.fileErrors.${problem}`)}</p>}
+          {problem && <p role="alert" className={errorText}>{t(`step.fileErrors.${problem}`)}</p>}
         </div>
       )}
 
@@ -166,19 +176,21 @@ export default function StepScreen({ token, task, index, total, onSaved }: Props
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={progress}
-          className="h-3 w-full overflow-hidden rounded bg-black/10"
+          className={`h-3 w-full ${track}`}
         >
           <div className="h-full bg-(--brand)" style={{ width: `${progress}%` }} />
         </div>
       )}
 
-      {failed && <p role="alert" className="text-red-600">{t('step.kept')}</p>}
+      {retryable && <p role="alert" className={errorText}>{t('step.kept')}</p>}
+      {failure === 'gone' && <p role="alert" className={errorText}>{t('step.gone')}</p>}
+      {failure === 'rejected' && <p role="alert" className={errorText}>{t('step.rejected')}</p>}
 
       <Button
-        color={failed ? 'danger' : 'primary'}
+        color={retryable ? 'danger' : 'primary'}
         className={big}
         isLoading={busy}
-        isDisabled={(isDoc && !file) || preparing}
+        isDisabled={(isDoc && !file) || preparing || failure === 'gone'}
         onPress={() => void send()}
       >
         {label}

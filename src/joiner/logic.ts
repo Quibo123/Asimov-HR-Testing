@@ -44,3 +44,24 @@ export function fileTypeProblem(f: { name: string; type: string }): FileProblem 
 // Checked after a photo has been made smaller
 export const fileSizeProblem = (f: { size: number }): FileProblem | null =>
   f.size > MAX_FILE_BYTES ? 'size' : null
+
+
+export type Failure = 'network' | 'gone' | 'rejected' | 'server'
+
+// Decides what a failed send means, so the screen only offers "retry" when retrying can help
+export function classifyFailure(err: unknown): Failure {
+  if (err instanceof TypeError) return 'network' // a dropped connection
+  const status =
+    typeof err === 'object' && err !== null && 'status' in err ? Number((err as { status: unknown }).status) : 0
+  if (status === 404 || status === 410) return 'gone'
+  if (status === 409 || status === 413 || status === 415 || status === 422) return 'rejected'
+  return 'server'
+}
+
+// ?theme=dark or ?theme=light wins. Otherwise the phone's own setting decides.
+export function resolveDark(search: string, prefersDark: boolean): boolean {
+  const theme = new URLSearchParams(search).get('theme')
+  if (theme === 'dark') return true
+  if (theme === 'light') return false
+  return prefersDark
+}

@@ -3,7 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@heroui/react'
 
 export function Skeleton({ className = '' }: { className?: string }) {
-  return <div aria-hidden="true" className={`animate-pulse rounded-lg bg-black/10 ${className}`} />
+  return (
+    <div
+      aria-hidden="true"
+      className={`animate-pulse rounded-lg bg-black/10 motion-reduce:animate-none dark:bg-white/15 ${className}`}
+    />
+  )
 }
 
 // Grey blocks while data loads. Screen readers hear "Loading...".
@@ -22,7 +27,7 @@ export function SkeletonList({ rows = 3, height = 'h-24' }: { rows?: number; hei
 export function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   const { t } = useTranslation()
   return (
-    <div role="alert" className="flex flex-col items-start gap-3 rounded-lg border border-red-300 p-4">
+    <div role="alert" className="flex flex-col items-start gap-3 rounded-lg border border-red-300 p-4 dark:border-red-500">
       <p className="font-semibold">{t('states.errorTitle')}</p>
       <p className="wrap-break-word">{message}</p>
       <Button color="primary" className="min-h-11" onPress={onRetry}>

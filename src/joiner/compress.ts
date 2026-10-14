@@ -11,6 +11,9 @@ export async function compressImage(file: File): Promise<File> {
     canvas.height = height
     const ctx = canvas.getContext('2d')
     if (!ctx) return file
+    // JPEG has no transparency, so a see-through PNG would turn black without this
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(0, 0, width, height)
     ctx.drawImage(bitmap, 0, 0, width, height)
     bitmap.close()
     const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY))

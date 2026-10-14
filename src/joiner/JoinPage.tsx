@@ -14,7 +14,7 @@ export default function JoinPage() {
 
   if (isError) {
     const gone = error instanceof PublicApiError && (error.status === 404 || error.status === 410)
-    if (gone) return <p role="alert">{t('invalid')}</p>
+      if (gone) return <p role="alert" className="text-red-700 dark:text-red-400">{t('invalid')}</p>
     return <ErrorState message={t('error')} onRetry={() => void refetch()} />
   }
 

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Finished, Saved, Welcome } from './JoinScreens'
+import { Finished, NoSteps, Saved, Welcome } from './JoinScreens'
 import StepScreen from './StepScreen'
 import { doneCount, nextTask } from './logic'
 import { joinerKey } from './queries'
@@ -27,6 +27,8 @@ export default function JoinFlow({ token, view }: { token: string; view: JoinerV
       />
     )
   }
+
+  if (view.tasks.length === 0) return <NoSteps view={view} />
 
   const task = nextTask(view.tasks)
   if (task === null) return <Finished view={view} />
