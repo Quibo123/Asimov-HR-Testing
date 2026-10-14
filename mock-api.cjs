@@ -466,7 +466,7 @@ http
     }
 
         // ---- Joiner portal (public) and HR progress board (AS-215) ----
-    if (parts[0] === 'joiner' || parts[0] === '__joinfail' || path === '/onboard/board') {
+    if (parts[0] === 'joiner' || (parts[0] ?? '').startsWith('__join') || path === '/onboard/board') {
       if (joinerMock({
         req, res, parts, path, body,
         hasToken: Boolean(req.headers.authorization) && !force401,
