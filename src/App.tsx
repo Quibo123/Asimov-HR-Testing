@@ -1,5 +1,4 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 import AppLayout from './components/AppLayout'
 import ProtectedRoute from './auth/ProtectedRoute'
 import SignIn from './pages/SignIn'
@@ -25,11 +24,7 @@ import OnboardEditorPage from './onboard/TemplateEditorPage'
 import BoardPage from './onboard/BoardPage'
 import JoinLayout from './joiner/JoinLayout'
 import JoinPage from './joiner/JoinPage'
-
-const ModulePage = ({ ns }: { ns: string }) => {
-  const { t } = useTranslation(ns)
-  return <h1>{t('title')}</h1>
-}
+import ClockPage from './time/ClockPage'
 
 export default function App() {
   return (
@@ -75,7 +70,7 @@ export default function App() {
             <Route path="board" element={<BoardPage />} />
           </Route>
 
-          <Route path="/time" element={<ModulePage ns="time" />} />
+          <Route path="/time" element={<ClockPage />} />
           <Route path="/settings" element={<Navigate to="/settings/users" replace />} />
           <Route path="/settings/users" element={<SettingsUsers />} />
         </Route>

@@ -1,1 +1,24 @@
-{ "title": "Time" }
+{
+  "title": "Time",
+  "clock": {
+    "title": "Clock",
+    "today": "Today, {{date}}",
+    "shift": "Shift {{start}} to {{end}}",
+    "noShift": "No shift scheduled today",
+    "location": "{{name}} · {{zone}}",
+    "actions": { "in": "Clock in", "out": "Clock out" },
+    "sending": "Sending...",
+    "notSent": "Not sent — tap to retry",
+    "pending": "{{action}} tapped at {{time}}. It is saved on this phone and has not reached the server yet.",
+    "retryNote": "Tap the red button to send it again. It is recorded only once, even if an earlier try got through.",
+    "offline": "You are offline. Your tap is kept on this phone until it can be sent.",
+    "recorded": "{{action}} recorded at {{time}}",
+    "recordedZone": "Shown in {{name}} time",
+    "conflict": "Your status had already changed, so this tap was not needed. Your timeline is up to date now.",
+    "refused": "The server did not accept this punch. Tell HR if it keeps happening.",
+    "timeline": "Today's timeline",
+    "empty": "No punches yet today.",
+    "unsent": "Not sent",
+    "loadError": "Could not load today's shift."
+  }
+}
